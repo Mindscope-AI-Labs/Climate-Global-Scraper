@@ -1,1 +1,8 @@
-serpapi==0.1.5
+fastapi==0.116.1
+pydantic==2.11.7
+python-dotenv==1.1.1
+uvicorn==0.25.0
+serper==0.1.5
+langchain==0.1.5
+langchain_community==0.1.5
+
