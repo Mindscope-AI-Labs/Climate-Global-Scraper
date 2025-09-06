@@ -1,0 +1,76 @@
+{"searchParameters":
+{
+    "q":"Climate in Africa",
+    "gl":"ke","type":"search",
+    "tbs":"qdr:m",
+    "engine":"google"
+},
+"organic":
+[
+    {
+        "title":"About - Climate in Africa",
+        "link":"https://climateinafrica.com/about/",
+        "snippet":"Founded in 2023 and headquartered in Lagos, Climate in Africa aims to democratize environmental data. Our diverse team spans climate scientists, hardware ...",
+        "date":"14 Aug 2025",
+        "position":1
+    },
+    {
+        "title":"State of the Climate in 2024: Takeaways from Africa",
+        "link":"https://blog.ametsoc.org/2025/08/14/state-of-the-climate-in-2024-takeaways-from-africa/",
+        "snippet":"In 2024, Africa registered above-average temperatures. Temperatures greater than 2.4°C were observed in Northwest Africa and over Southwest around the Kalahari ...",
+        "date":"14 Aug 2025",
+        "position":2
+    },
+    {
+        "title":"Africa's smallholder farmers face collapse if we do not act on climate ...",
+        "link":"https://www.cgiar.org/news-events/news/africas-smallholder-farmers-face-collapse-if-we-do-not-act-on-climate-change/",
+        "snippet":"95% of African farmers depend on rain-fed agriculture, which is highly susceptible to shifts in weather patterns.",
+        "date":"14 Aug 2025",
+        "position":3
+    },
+    {
+        "title":"Africa steps forward to combat climate change | Opinion - Daily Sabah",
+        "link":"https://www.dailysabah.com/opinion/op-ed/africa-steps-forward-to-combat-climate-change",
+        "snippet":"While Africa contributes less than 4% to climate change, it is the continent most heavily impacted by its effects. However, African leaders, under the auspices ...",
+        "date":"19 Aug 2025",
+        "position":4
+    },
+    {
+        "title":"From Data Deficit to Action: Inside the Launch of Climate in Africa",
+        "link":"https://climateinafrica.com/from-data-deficit-to-action-inside-the-launch-of-climate-in-africa/",
+        "snippet":"Africa is often tagged as the most susceptible continent to climate change; this is despite contributing less than 4% to the global greenhouse gas emissions.",
+        "date":"11 Aug 2025",
+        "position":5
+    },
+    {
+        "title":"African climate change: 1900–2100",
+        "link":"https://www.int-res.com/articles/cr/17/c017p145.pdf",
+        "snippet":"The climates of Africa are both varied and varying: varied because they range from humid equatorial regimes, through seasonally-arid tropical regimes, to.","date":"15 Aug 2025","position":6},
+    {
+        "title":"ICPAC: Home",
+        "link":"https://www.icpac.net/",
+        "snippet":"Below-normal rains and warmer-than-usual conditions are expected over most parts of the Greater Horn of Africa ... Nairobi, Kenya, 26 August 2025: The IGAD ...",
+        "date":"26 Aug 2025",
+        "sitelinks":
+        [
+            {
+                "title":"Climate forecasting",
+                "link":"https://www.icpac.net/climate-forecasting/"
+            },
+            {
+                "title":"Climate Change",
+                "link":"https://www.icpac.net/climate-change/"
+            },
+            {
+                "title":"Climate Monitoring",
+                "link":"https://www.icpac.net/climate-monitoring/"
+            },
+            {
+                "title":"Weekly Forecast",
+                "link":"https://www.icpac.net/weekly-forecast/"
+            }
+        ],
+        "position":7
+    }
+    ],"topStories":[{"title":"FROM CRISIS TO LEADERSHIP: AFRICA’S BOLD CLIMATE AGENDA AT THE SECOND AFRICA CLIMATE SUMMIT","link":"https://www.lossanddamagecollaboration.org/resources/from-crisis-to-leadership-africas-bold-climate-agenda-at-the-second-africa-climate-summit","date":"1 day ago","source":"The Loss and Damage Collaboration"},{"title":"What to Watch at the Second Africa Climate Summit","link":"https://www.wri.org/insights/africa-climate-summit-2025-needed-outcomes","date":"1 week ago","source":"World Resources Institute"},{"title":"The Second Africa Climate Summit (ACS2) Announces Advanced Preparations for a Landmark Summit","link":"https://au.int/en/pressreleases/20250826/second-africa-climate-summit-acs2-announces-advanced-preparations-landmark","date":"1 week ago","source":"African Union"}],"credits":1
+}
