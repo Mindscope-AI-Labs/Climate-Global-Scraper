@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Climate Data Scraper</title>
+  <link href="/static/css/styles.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo-dot"></div>
+        <div class="brand-name">Climate Scraper</div>
+      </div>
+      <nav class="nav">
+        <a href="#">Home</a>
+        <a href="#">Docs</a>
+        <a href="#" class="muted">About</a>
+      </nav>
+    </header>
+
+    <main class="content">
+      <section class="left-panel">
+        <small class="muted">SEARCH CLIMATE DATA</small>
+        <h1 class="title">Global Climate Search<span class="accent">.</span></h1>
+        <p class="muted">Search for climate organizations and initiatives worldwide.</p>
+
+        <form id="searchForm" class="card">
+          <div class="search-block">
+            <label class="muted small">Search Query</label>
+            <input id="query" class="input" placeholder="e.g. climate non-profits Kenya" required />
+
+            <div class="row">
+              <input id="gl" class="input-small" placeholder="Country code (e.g., us, uk)" value="us" />
+              <input id="num" type="number" class="input-small" placeholder="Results count" min="1" max="50" value="10" />
+            </div>
+
+            <div class="actions">
+              <button type="submit" id="runBtn" class="btn btn-primary">Search</button>
+            </div>
+          </div>
+        </form>
+
+        <div id="message" class="message"></div>
+      </section>
+
+      <section class="right-panel">
+        <div class="hero-bg"></div>
+        <div class="corner-logo">.CS°</div>
+      </section>
+    </main>
+
+    <section class="results-wrap">
+      <div class="results-header">
+        <h2>Results</h2>
+        <div>
+          <button id="downloadJson" class="btn btn-ghost">Download JSON</button>
+        </div>
+      </div>
+      <div id="results" class="results"></div>
+    </section>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
