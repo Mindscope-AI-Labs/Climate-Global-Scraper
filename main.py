@@ -13,7 +13,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize FastAPI app
-app = FastAPI(title="Climate Data Scraper", version="1.0.0")
+app = FastAPI(
+    title="OpenCurrent",
+    description="Knowledge flowing at your fingertips. Search and discover information from across the web with precision and ease.",
+    version="1.0.0"
+)
 
 # Add CORS middleware
 app.add_middleware(
@@ -148,4 +152,3 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))  # Use Render's PORT, default to 8000 locally
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
-    
