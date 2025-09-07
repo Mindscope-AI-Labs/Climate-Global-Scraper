@@ -71,7 +71,7 @@ body{
   border: 1px solid rgba(255,255,255,0.03);
 }
 
-.row{display:flex;gap:12px;margin-bottom:12px;}
+.row{display:flex;gap:12px;margin-bottom:6px;}
 .input-small{flex:1;padding:12px;border-radius:12px;background:var(--input);border:1px solid rgba(255,255,255,0.03);color:#e6eef6;font-size:14px;}
 .field{margin-top:12px;}
 .input{width:100%;padding:12px;border-radius:12px;background:var(--input);border:1px solid rgba(255,255,255,0.03);color:#e6eef6;font-size:14px;}
