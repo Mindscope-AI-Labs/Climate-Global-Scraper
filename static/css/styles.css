@@ -22,6 +22,14 @@ body{
   -moz-osx-font-smoothing:grayscale;
   padding:24px;
   line-height:1.5;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Top bar */
@@ -152,12 +160,12 @@ body{
   position:relative;
   border-radius:16px;
   overflow:hidden;
-  min-height:420px;
   background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
   border:1px solid rgba(255,255,255,0.03);
   padding:20px;
   display:flex;
   flex-direction:column;
+  min-height: 0;
 }
 
 .results-container {
@@ -165,6 +173,7 @@ body{
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
 }
 
 .results-container .results-header {
@@ -174,6 +183,7 @@ body{
   margin-bottom:16px;
   padding-bottom:12px;
   border-bottom:1px solid rgba(255,255,255,0.03);
+  flex-shrink: 0;
 }
 
 .results-container .results {
@@ -182,6 +192,7 @@ body{
   display:grid;
   gap:12px;
   padding-right: 8px;
+  min-height: 0;
 }
 
 .results-container .results::-webkit-scrollbar {
@@ -204,6 +215,7 @@ body{
 
 .results-container .message {
   margin-top: 12px;
+  flex-shrink: 0;
 }
 
 /* Results area */
@@ -264,6 +276,51 @@ body{
   color:var(--accent);
   font-size:14px;
   display:inline-block;
+}
+
+/* Footer */
+.footer {
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 16px 24px;
+  margin-top: 20px;
+  flex-shrink: 0;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copyright {
+  color: var(--muted);
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.footer-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.help-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.help-link:hover {
+  background: rgba(46, 163, 255, 0.1);
+  border-color: rgba(46, 163, 255, 0.2);
+  text-decoration: none;
 }
 
 /* Responsive adjustments */

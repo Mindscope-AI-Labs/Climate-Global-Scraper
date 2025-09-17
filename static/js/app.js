@@ -3,6 +3,7 @@ const searchForm = document.getElementById('searchForm');
 const resultsDiv = document.getElementById('results');
 const message = document.getElementById('message');
 const downloadBtn = document.getElementById('downloadJson');
+const helpLink = document.getElementById('helpLink');
 let lastJson = null;
 
 // Handle form submission
@@ -173,6 +174,70 @@ function showMessage(text, type = 'info') {
 
 // Event listeners
 downloadBtn.addEventListener('click', downloadJson);
+helpLink.addEventListener('click', showHelp);
 
 // Initialize
 message.style.display = 'none';
+
+// Show help modal
+function showHelp() {
+  const helpContent = `
+    <div style="max-width: 500px; padding: 24px; background: var(--panel); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+      <h3 style="margin: 0 0 16px 0; color: var(--accent);">OpenCurrent Help</h3>
+      <div style="margin-bottom: 16px;">
+        <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #e6eef6;">How to Search:</h4>
+        <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: var(--muted); line-height: 1.6;">
+          <li>Enter your search query in the search field</li>
+          <li>Optionally specify a country code (e.g., us, uk, de)</li>
+          <li>Set the number of results you want (1-50)</li>
+          <li>Click "Search" to get results</li>
+        </ul>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #e6eef6;">Features:</h4>
+        <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: var(--muted); line-height: 1.6;">
+          <li>Results appear in the right panel</li>
+          <li>Download results as JSON using the download button</li>
+          <li>Click on any result title to visit the source</li>
+        </ul>
+      </div>
+      <div style="text-align: right; margin-top: 20px;">
+        <button onclick="this.closest('.help-modal').remove(); document.getElementById('helpOverlay').remove();" 
+                style="padding: 8px 16px; background: var(--accent); color: #04223a; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+          Close
+        </button>
+      </div>
+    </div>
+  `;
+  
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'helpOverlay';
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  `;
+  
+  // Create modal
+  const modal = document.createElement('div');
+  modal.className = 'help-modal';
+  modal.innerHTML = helpContent;
+  
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  
+  // Close on overlay click
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
