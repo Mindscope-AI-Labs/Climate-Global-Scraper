@@ -15,7 +15,7 @@ searchForm.addEventListener('submit', async (e) => {
   resultsDiv.innerHTML = '';
   
   const query = document.getElementById('query').value.trim();
-  const gl = document.getElementById('gl').value.trim() || 'us';
+  const gl = document.getElementById('gl').value.trim() || 'ke';
   const num = parseInt(document.getElementById('num').value || '10', 10);
 
   if (!query) {
