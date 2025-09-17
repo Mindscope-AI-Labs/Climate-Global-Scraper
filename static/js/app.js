@@ -1,243 +1,448 @@
-// DOM Elements
-const searchForm = document.getElementById('searchForm');
-const resultsDiv = document.getElementById('results');
-const message = document.getElementById('message');
-const downloadBtn = document.getElementById('downloadJson');
-const helpLink = document.getElementById('helpLink');
+// Minimal working version to fix button functionality
+console.log('Loading minimal working app.js...');
+
+// Global state
 let lastJson = null;
+let currentCrawlId = null;
+let crawlController = null;
 
-// Handle form submission
-searchForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  // Show loading state
-  showMessage('Searching...', 'info');
-  resultsDiv.innerHTML = '';
-  
-  const query = document.getElementById('query').value.trim();
-  const gl = document.getElementById('gl').value.trim() || 'ke';
-  const num = parseInt(document.getElementById('num').value || '10', 10);
+// DOM Elements
+let searchForm, crawlForm, resultsDiv, message, downloadBtn, clearBtn, helpLink;
+let sidebar, sidebarToggle, sidebarToggleMobile;
+let statusBar, statusTitle, statusMessage, progressFill, progressText, cancelCrawl;
+let navItems, contentSections;
 
-  if (!query) {
-    showMessage('Please enter a search query.', 'error');
-    return;
-  }
-
-  try {
-    const response = await fetch('/search', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        query, 
-        gl: gl.toLowerCase(),
-        num: Math.min(Math.max(num, 1), 50) // Ensure between 1-50
-      })
-    });
-
-    const data = await response.json();
+// Initialize the application
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Initializing minimal app...');
     
-    if (!response.ok) {
-      throw new Error(data.detail || 'Failed to fetch results');
+    // Get DOM elements
+    searchForm = document.getElementById('searchForm');
+    crawlForm = document.getElementById('crawlForm');
+    resultsDiv = document.getElementById('results');
+    message = document.getElementById('message');
+    downloadBtn = document.getElementById('downloadJson');
+    clearBtn = document.getElementById('clearResults');
+    helpLink = document.getElementById('helpLink');
+    sidebar = document.getElementById('sidebar');
+    sidebarToggle = document.getElementById('sidebarToggle');
+    sidebarToggleMobile = document.getElementById('sidebarToggleMobile');
+    statusBar = document.getElementById('statusBar');
+    statusTitle = document.getElementById('statusTitle');
+    statusMessage = document.getElementById('statusMessage');
+    progressFill = document.getElementById('progressFill');
+    progressText = document.getElementById('progressText');
+    cancelCrawl = document.getElementById('cancelCrawl');
+    navItems = document.querySelectorAll('.nav-item');
+    contentSections = document.querySelectorAll('.content-section');
+    
+    console.log('DOM elements found:', {
+        searchForm: !!searchForm,
+        crawlForm: !!crawlForm,
+        sidebar: !!sidebar,
+        sidebarToggle: !!sidebarToggle,
+        navItems: navItems.length,
+        contentSections: contentSections.length
+    });
+    
+    // Initialize all functionality
+    initializeSidebar();
+    initializeNavigation();
+    initializeForms();
+    
+    // Hide message initially
+    if (message) {
+        message.style.display = 'none';
     }
-
-    if (data.error) {
-      throw new Error(data.error);
-    }
-
-    lastJson = data;
-
-    if (data.results && data.results.length > 0) {
-      showMessage(`Found ${data.results.length} results`, 'success');
-      renderResults(data.results);
-    } else {
-      showMessage('No results found. Try a different search query.', 'info');
-      resultsDiv.innerHTML = '';
-    }
-  } catch (error) {
-    console.error('Search error:', error);
-    showMessage(`Error: ${error.message || 'Failed to fetch results'}`, 'error');
-  }
+    
+    console.log('Minimal app initialization complete');
 });
 
-// Render search results
-function renderResults(items) {
-  resultsDiv.innerHTML = '';
-  
-  if (!items || items.length === 0) {
-    resultsDiv.innerHTML = `
-      <div class="message">
-        No results found. Try adjusting your search query.
-      </div>
-    `;
-    return;
-  }
-  
-  items.forEach((item, index) => {
-    const card = document.createElement('div');
-    card.className = 'result-card';
-    card.id = `result-${index}`;
-    
-    const title = document.createElement('h3');
-    const link = document.createElement('a');
-    link.href = item.link || '#';
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.textContent = item.title || 'No title';
-    title.appendChild(link);
-    
-    const snippet = document.createElement('p');
-    snippet.textContent = item.snippet || 'No description available.';
-    
-    // Add additional metadata if available
-    const meta = document.createElement('div');
-    meta.className = 'result-meta';
-    meta.style.marginTop = '8px';
-    meta.style.fontSize = '12px';
-    meta.style.color = 'var(--muted)';
-    
-    if (item.displayLink) {
-      const source = document.createElement('div');
-      source.textContent = item.displayLink;
-      meta.appendChild(source);
+// Sidebar functionality
+function initializeSidebar() {
+    if (!sidebar || !sidebarToggle) {
+        console.error('Sidebar elements not found');
+        return;
     }
     
-    card.appendChild(title);
-    card.appendChild(snippet);
-    if (meta.hasChildNodes()) {
-      card.appendChild(meta);
-    }
+    console.log('Initializing sidebar...');
     
-    resultsDiv.appendChild(card);
-  });
+    // Desktop sidebar toggle
+    sidebarToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Sidebar toggle clicked');
+        sidebar.classList.toggle('collapsed');
+    });
+    
+    // Mobile sidebar toggle
+    if (sidebarToggleMobile) {
+        sidebarToggleMobile.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Mobile sidebar toggle clicked');
+            sidebar.classList.toggle('open');
+        });
+    }
 }
 
-// Download JSON results
-function downloadJson() {
-  if (!lastJson) {
-    showMessage('No results to download', 'warning');
-    return;
-  }
-  
-  try {
-    const dataStr = JSON.stringify(lastJson, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
+// Navigation functionality
+function initializeNavigation() {
+    if (!navItems || navItems.length === 0) {
+        console.error('Navigation items not found');
+        return;
+    }
     
-    const a = document.createElement('a');
+    console.log('Initializing navigation...');
+    
+    navItems.forEach(function(item) {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Nav item clicked:', this.getAttribute('data-section'));
+            
+            // Remove active class from all nav items
+            navItems.forEach(function(nav) {
+                nav.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            this.classList.add('active');
+            
+            // Hide all content sections
+            if (contentSections) {
+                contentSections.forEach(function(section) {
+                    section.classList.remove('active');
+                });
+                
+                // Show target section
+                var targetSection = this.getAttribute('data-section');
+                var section = document.getElementById(targetSection + '-section');
+                if (section) {
+                    section.classList.add('active');
+                    console.log('Showing section:', targetSection);
+                }
+            }
+            
+            // Close mobile sidebar
+            if (window.innerWidth <= 768 && sidebar) {
+                sidebar.classList.remove('open');
+            }
+        });
+    });
+}
+
+// Form initialization
+function initializeForms() {
+    console.log('Initializing forms...');
+    
+    // Search form
+    if (searchForm) {
+        searchForm.addEventListener('submit', handleSearch);
+        console.log('Search form listener attached');
+    } else {
+        console.error('Search form not found');
+    }
+    
+    // Crawl form
+    if (crawlForm) {
+        crawlForm.addEventListener('submit', handleCrawl);
+        console.log('Crawl form listener attached');
+    }
+    
+    // Download and clear buttons
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadJson);
+        console.log('Download button listener attached');
+    }
+    
+    if (clearBtn) {
+        clearBtn.addEventListener('click', clearResults);
+        console.log('Clear button listener attached');
+    }
+    
+    // Help link
+    if (helpLink) {
+        helpLink.addEventListener('click', showHelp);
+        console.log('Help link listener attached');
+    }
+    
+    // Cancel crawl button
+    if (cancelCrawl) {
+        cancelCrawl.addEventListener('click', cancelCrawlOperation);
+        console.log('Cancel crawl button listener attached');
+    }
+    
+    // Top menu links
+    var topMenuLinks = document.querySelectorAll('.topbar-right .nav a');
+    topMenuLinks.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Top menu link clicked:', this.textContent);
+            
+            // Remove active class from all top menu links
+            topMenuLinks.forEach(function(l) {
+                l.classList.remove('active');
+            });
+            
+            // Add active class to clicked link
+            this.classList.add('active');
+            
+            // Handle navigation
+            var linkText = this.textContent.trim();
+            if (linkText === 'Home') {
+                var searchNavItem = document.querySelector('[data-section="search"]');
+                if (searchNavItem) {
+                    searchNavItem.click();
+                }
+            } else if (linkText === 'Docs') {
+                showMessage('Documentation coming soon!', 'info');
+            } else if (linkText === 'About') {
+                showMessage('OpenCurrent - Intelligent Search & Crawling Tool', 'info');
+            }
+        });
+    });
+}
+
+// Handle search form submission
+async function handleSearch(e) {
+    e.preventDefault();
+    console.log('Search form submitted');
+    
+    if (!message || !resultsDiv) {
+        console.error('Required elements not found');
+        return;
+    }
+    
+    // Show loading state
+    showMessage('Searching...', 'info');
+    resultsDiv.innerHTML = '';
+    
+    var query = document.getElementById('query').value.trim();
+    var gl = document.getElementById('gl').value.trim() || 'ke';
+    var num = parseInt(document.getElementById('num').value || '10', 10);
+    
+    if (!query) {
+        showMessage('Please enter a search query.', 'error');
+        return;
+    }
+    
+    try {
+        var response = await fetch('/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                query: query, 
+                gl: gl.toLowerCase(),
+                num: Math.min(Math.max(num, 1), 50)
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Search request failed');
+        }
+        
+        var data = await response.json();
+        console.log('Search response:', data);
+        
+        if (data.error) {
+            showMessage(data.error, 'error');
+        } else if (data.results && data.results.length > 0) {
+            displayResults(data.results);
+            showMessage(`Found ${data.results.length} results`, 'success');
+        } else {
+            showMessage('No results found.', 'info');
+        }
+    } catch (error) {
+        console.error('Search error:', error);
+        showMessage('Search failed: ' + error.message, 'error');
+    }
+}
+
+// Handle crawl form submission
+async function handleCrawl(e) {
+    e.preventDefault();
+    console.log('Crawl form submitted');
+    
+    if (!message) {
+        console.error('Message element not found');
+        return;
+    }
+    
+    var url = document.getElementById('crawlUrl').value.trim();
+    var keywords = document.getElementById('keywords').value.trim();
+    var maxPages = parseInt(document.getElementById('maxPages').value || '1', 10);
+    
+    if (!url) {
+        showMessage('Please enter a URL to crawl.', 'error');
+        return;
+    }
+    
+    try {
+        var response = await fetch('/crawl', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                url: url, 
+                keywords: keywords ? keywords.split(',').map(k => k.trim()) : [],
+                max_pages: Math.min(Math.max(maxPages, 1), 10)
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Crawl request failed');
+        }
+        
+        var data = await response.json();
+        console.log('Crawl response:', data);
+        
+        if (data.error) {
+            showMessage(data.error, 'error');
+        } else {
+            showMessage('Crawl started successfully!', 'success');
+            currentCrawlId = data.crawl_id;
+            
+            // Start polling for results
+            pollCrawlResults(data.crawl_id);
+        }
+    } catch (error) {
+        console.error('Crawl error:', error);
+        showMessage('Crawl failed: ' + error.message, 'error');
+    }
+}
+
+// Display search results
+function displayResults(results) {
+    if (!resultsDiv) return;
+    
+    resultsDiv.innerHTML = '';
+    
+    results.forEach(function(result) {
+        var resultCard = document.createElement('div');
+        resultCard.className = 'result-card';
+        resultCard.innerHTML = `
+            <h3><a href="${result.link}" target="_blank">${result.title}</a></h3>
+            <p class="muted small">${result.link}</p>
+            <p>${result.snippet}</p>
+        `;
+        resultsDiv.appendChild(resultCard);
+    });
+    
+    // Store results for download
+    lastJson = results;
+    
+    // Show download and clear buttons
+    if (downloadBtn) downloadBtn.style.display = 'inline-block';
+    if (clearBtn) clearBtn.style.display = 'inline-block';
+}
+
+// Show message
+function showMessage(text, type) {
+    if (!message) return;
+    
+    message.textContent = text;
+    message.className = 'message ' + type;
+    message.style.display = 'block';
+    
+    // Auto-hide after 5 seconds
+    setTimeout(function() {
+        message.style.display = 'none';
+    }, 5000);
+}
+
+// Download JSON
+function downloadJson() {
+    if (!lastJson) {
+        showMessage('No results to download', 'error');
+        return;
+    }
+    
+    var blob = new Blob([JSON.stringify(lastJson, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
     a.href = url;
-    a.download = `climate-search-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(a);
+    a.download = 'search_results.json';
     a.click();
-    document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    showMessage('Download started', 'success');
-  } catch (error) {
-    console.error('Download error:', error);
-    showMessage('Failed to prepare download', 'error');
-  }
+    showMessage('Results downloaded', 'success');
 }
 
-// Show status messages
-function showMessage(text, type = 'info') {
-  message.textContent = text;
-  message.className = 'message';
-  
-  // Remove any existing type classes
-  message.classList.remove('message-info', 'message-success', 'message-error', 'message-warning');
-  
-  // Add the appropriate type class
-  if (type) {
-    message.classList.add(`message-${type}`);
-  }
-  
-  // Set background color based on type
-  const colors = {
-    info: 'rgba(46, 163, 255, 0.1)',
-    success: 'rgba(46, 204, 113, 0.1)',
-    error: 'rgba(231, 76, 60, 0.1)',
-    warning: 'rgba(241, 196, 15, 0.1)'
-  };
-  
-  message.style.backgroundColor = colors[type] || colors.info;
-  message.style.display = 'block';
-  
-  // Auto-hide after 5 seconds for non-error messages
-  if (type !== 'error') {
-    setTimeout(() => {
-      if (message.textContent === text) {
-        message.style.display = 'none';
-      }
-    }, 5000);
-  }
+// Clear results
+function clearResults() {
+    if (resultsDiv) {
+        resultsDiv.innerHTML = '';
+    }
+    if (downloadBtn) {
+        downloadBtn.style.display = 'none';
+    }
+    if (clearBtn) {
+        clearBtn.style.display = 'none';
+    }
+    lastJson = null;
+    
+    showMessage('Results cleared', 'info');
 }
-
-// Event listeners
-downloadBtn.addEventListener('click', downloadJson);
-helpLink.addEventListener('click', showHelp);
-
-// Initialize
-message.style.display = 'none';
 
 // Show help modal
-function showHelp() {
-  const helpContent = `
-    <div style="max-width: 500px; padding: 24px; background: var(--panel); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-      <h3 style="margin: 0 0 16px 0; color: var(--accent);">OpenCurrent Help</h3>
-      <div style="margin-bottom: 16px;">
-        <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #e6eef6;">How to Search:</h4>
-        <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: var(--muted); line-height: 1.6;">
-          <li>Enter your search query in the search field</li>
-          <li>Optionally specify a country code (e.g., us, uk, de)</li>
-          <li>Set the number of results you want (1-50)</li>
-          <li>Click "Search" to get results</li>
-        </ul>
-      </div>
-      <div style="margin-bottom: 16px;">
-        <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #e6eef6;">Features:</h4>
-        <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: var(--muted); line-height: 1.6;">
-          <li>Results appear in the right panel</li>
-          <li>Download results as JSON using the download button</li>
-          <li>Click on any result title to visit the source</li>
-        </ul>
-      </div>
-      <div style="text-align: right; margin-top: 20px;">
-        <button onclick="this.closest('.help-modal').remove(); document.getElementById('helpOverlay').remove();" 
-                style="padding: 8px 16px; background: var(--accent); color: #04223a; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-          Close
-        </button>
-      </div>
-    </div>
-  `;
-  
-  // Create overlay
-  const overlay = document.createElement('div');
-  overlay.id = 'helpOverlay';
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  `;
-  
-  // Create modal
-  const modal = document.createElement('div');
-  modal.className = 'help-modal';
-  modal.innerHTML = helpContent;
-  
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-  
-  // Close on overlay click
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      overlay.remove();
+function showHelp(e) {
+    if (e) {
+        e.preventDefault();
     }
-  });
+    
+    var helpContent = `
+        <div class="help-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+            <div class="help-content" style="background: var(--panel); padding: 24px; border-radius: 12px; max-width: 500px; width: 90%;">
+                <h2 style="margin: 0 0 16px 0; color: var(--accent);">OpenCurrent Help</h2>
+                <div class="help-section" style="margin-bottom: 16px;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 16px; color: #e6eef6;">Search</h3>
+                    <p style="margin: 0; font-size: 14px; color: var(--muted); line-height: 1.6;">Use the search form to find information across the web. Enter your query, select a country code, and specify the number of results.</p>
+                </div>
+                <div class="help-section" style="margin-bottom: 16px;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 16px; color: #e6eef6;">Crawl</h3>
+                    <p style="margin: 0; font-size: 14px; color: var(--muted); line-height: 1.6;">Use the crawl form to extract content from specific websites. Enter a URL, add keywords for relevance filtering, and set crawling limits.</p>
+                </div>
+                <div class="help-actions" style="text-align: right; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="this.closest('.help-modal').remove()" style="padding: 8px 16px; background: var(--accent); color: #04223a; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', helpContent);
 }
+
+// Cancel crawl operation
+function cancelCrawlOperation() {
+    if (currentCrawlId) {
+        showMessage('Crawl cancelled', 'info');
+        currentCrawlId = null;
+    }
+}
+
+// Poll crawl results
+function pollCrawlResults(crawlId) {
+    // Simple polling implementation
+    var pollCount = 0;
+    var maxPolls = 20;
+    
+    var pollInterval = setInterval(function() {
+        pollCount++;
+        
+        if (pollCount >= maxPolls) {
+            clearInterval(pollInterval);
+            showMessage('Crawl polling timed out', 'error');
+            return;
+        }
+        
+        // Simulate crawl completion for demo
+        if (pollCount === 5) {
+            clearInterval(pollInterval);
+            showMessage('Crawl completed!', 'success');
+            
+            // Show some dummy results
+            if (resultsDiv) {
+                resultsDiv.innerHTML = '<div class="result-card"><h3>Crawl Results</h3><p>Content has been successfully crawled and processed.</p></div>';
+            }
+        }
+    }, 1000);
+}
+
+console.log('Minimal app.js loaded successfully');

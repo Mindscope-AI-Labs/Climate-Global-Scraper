@@ -29,65 +29,176 @@
 </head>
 <body>
   <div class="page">
-    <header class="topbar">
-      <div class="brand">
-        <img src="/static/images/logo.png" alt="OpenCurrent Logo" class="logo" />
-        <span class="brand-name">OpenCurrent</span>
+    <!-- Left Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <img src="/static/images/logo.png" alt="OpenCurrent Logo" class="logo" />
+          <span class="brand-name">OpenCurrent</span>
+        </div>
+        <button class="sidebar-toggle" id="sidebarToggle">
+          <span class="toggle-icon">☰</span>
+        </button>
       </div>
-      <nav class="nav">
-        <a href="#" class="active">Home</a>
-        <a href="#">Docs</a>
-        <a href="#" class="muted">About</a>
-      </nav>
-    </header>
-
-    <main class="content">
-      <section class="left-panel">
-        <small class="muted">SEARCH KNOWLEDGE</small>
-        <h1 class="title">Knowledge flowing at your <span class="accent">fingertips</span>.</h1>
-        <p class="muted">Search and discover information from across the web with precision and ease.</p>
-
-        <form id="searchForm" class="card">
-          <div class="search-block">
-            <label class="muted small">Search Query</label>
-            <input id="query" class="input" placeholder="e.g. climate change initiatives Africa" required />
-
-            <div class="row">
-              <input id="gl" class="input-small" placeholder="Country code (e.g., us, uk)" value="us" />
-              <input id="num" type="number" class="input-small" placeholder="Results count" min="1" max="50" value="10" />
-            </div>
-
-            <div class="actions">
-              <button type="submit" id="runBtn" class="btn btn-primary">Search</button>
-            </div>
-          </div>
-        </form>
-      </section>
-
-      <section class="right-panel">
-        <div class="results-container">
-          <div class="results-header">
-            <h2>Search Results</h2>
-            <div>
-              <button id="downloadJson" class="btn btn-ghost">Download Results</button>
-            </div>
-          </div>
-          <div id="results" class="results"></div>
-          <div id="message" class="message"></div>
+      
+      <div class="sidebar-content">
+        <div class="nav-section">
+          <h3 class="nav-section-title">Main</h3>
+          <ul class="nav-menu">
+            <li><a href="#" class="nav-item active" data-section="search">
+              <span class="nav-icon">🔍</span>
+              <span class="nav-text">Search</span>
+            </a></li>
+            <li><a href="#" class="nav-item" data-section="crawl">
+              <span class="nav-icon">🕷️</span>
+              <span class="nav-text">Crawl</span>
+            </a></li>
+            <li><a href="#" class="nav-item" data-section="results">
+              <span class="nav-icon">📊</span>
+              <span class="nav-text">Results</span>
+            </a></li>
+          </ul>
         </div>
-      </section>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-content">
-        <div class="copyright">
-          2025 OpenCurrent. All rights reserved.
-        </div>
-        <div class="footer-actions">
-          <a href="#" id="helpLink" class="help-link">Help</a>
+        
+        <div class="nav-section">
+          <h3 class="nav-section-title">Tools</h3>
+          <ul class="nav-menu">
+            <li><a href="#" class="nav-item" data-section="settings">
+              <span class="nav-icon">⚙️</span>
+              <span class="nav-text">Settings</span>
+            </a></li>
+            <li><a href="#" class="nav-item" data-section="help">
+              <span class="nav-icon">❓</span>
+              <span class="nav-text">Help</span>
+            </a></li>
+          </ul>
         </div>
       </div>
-    </footer>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="sidebar-toggle-mobile" id="sidebarToggleMobile">
+            <span class="toggle-icon">☰</span>
+          </button>
+          <h1 class="page-title">Search & Crawl</h1>
+        </div>
+        <div class="topbar-right">
+          <nav class="nav">
+            <a href="#" class="active">Home</a>
+            <a href="#">Docs</a>
+            <a href="#" class="muted">About</a>
+          </nav>
+        </div>
+      </header>
+
+      <!-- Scraping Status Bar -->
+      <div class="status-bar" id="statusBar" style="display: none;">
+        <div class="status-content">
+          <div class="status-icon">
+            <div class="spinner"></div>
+          </div>
+          <div class="status-info">
+            <div class="status-title" id="statusTitle">Initializing...</div>
+            <div class="status-message" id="statusMessage">Preparing to crawl</div>
+            <div class="status-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+              </div>
+              <div class="progress-text" id="progressText">0%</div>
+            </div>
+          </div>
+          <div class="status-actions">
+            <button class="btn btn-small btn-ghost" id="cancelCrawl">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <main class="content">
+        <!-- Search Section -->
+        <section class="content-section active" id="search-section">
+          <div class="section-header">
+            <h2>Knowledge Search</h2>
+            <p class="muted">Search and discover information from across the web with precision and ease.</p>
+          </div>
+          
+          <div class="search-container">
+            <form id="searchForm" class="card">
+              <div class="search-block">
+                <label class="muted small">Search Query</label>
+                <input id="query" class="input" placeholder="e.g. climate change initiatives Africa" required />
+
+                <div class="row">
+                  <input id="gl" class="input-small" placeholder="Country code (e.g., us, uk)" value="us" />
+                  <input id="num" type="number" class="input-small" placeholder="Results count" min="1" max="50" value="10" />
+                </div>
+
+                <div class="actions">
+                  <button type="submit" id="runBtn" class="btn btn-primary">Search</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- Crawl Section -->
+        <section class="content-section" id="crawl-section">
+          <div class="section-header">
+            <h2>Intelligent Crawling</h2>
+            <p class="muted">Crawl websites and extract relevant content based on keywords.</p>
+          </div>
+          
+          <div class="crawl-container">
+            <form id="crawlForm" class="card">
+              <div class="crawl-block">
+                <label class="muted small">URL to Crawl</label>
+                <input id="crawlUrl" class="input" placeholder="https://example.com/article" required />
+
+                <label class="muted small">Keywords (comma separated)</label>
+                <input id="crawlKeywords" class="input" placeholder="introduction, custom tools, ai" />
+
+                <div class="row">
+                  <input id="maxDepth" type="number" class="input-small" placeholder="Max depth" min="1" max="5" value="1" />
+                  <input id="maxPages" type="number" class="input-small" placeholder="Max pages" min="1" max="10" value="1" />
+                </div>
+
+                <div class="actions">
+                  <button type="submit" id="crawlBtn" class="btn btn-primary">Start Crawling</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="content-section" id="results-section">
+          <div class="results-container">
+            <div class="results-header">
+              <h2>Results</h2>
+              <div>
+                <button id="downloadJson" class="btn btn-ghost">Download Results</button>
+                <button id="clearResults" class="btn btn-ghost">Clear</button>
+              </div>
+            </div>
+            <div id="results" class="results"></div>
+            <div id="message" class="message"></div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="footer-content">
+          <div class="copyright">
+            2025 OpenCurrent. All rights reserved.
+          </div>
+          <div class="footer-actions">
+            <a href="#" id="helpLink" class="help-link">Help</a>
+          </div>
+        </div>
+      </footer>
+    </div>
   </div>
 
   <script src="/static/js/app.js"></script>
