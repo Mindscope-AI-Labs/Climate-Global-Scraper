@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>OpenCurrent</title>
+  <link rel="icon" type="image/png" href="/static/images/title-logo.png" />
+  <link rel="shortcut icon" type="image/png" href="/static/images/title-logo.png" />
   <link href="/static/css/styles.css" rel="stylesheet" />
   <style>
     /* Add styles for crawl status */
@@ -110,7 +112,10 @@
         <!-- Search Section -->
         <section class="content-section active" id="search-section">
           <div class="section-header">
-            <h2>Knowledge Search</h2>
+            <div class="title-with-logo">
+              <!-- <img src="/static/images/title-logo.png" alt="Title Logo" class="title-logo" /> -->
+              <h2>Knowledge Search</h2>
+            </div>
             <p>Search and discover information from across the web with precision and ease.</p>
           </div>
           
@@ -209,6 +214,7 @@
   <div class="help-modal" id="helpModal">
     <div class="help-content">
       <h2>OpenCurrent Help</h2>
+      <h3>Turning streams of data into trusted knowledge.</h3>
       <div class="help-section" style="margin-bottom: 16px;">
         <h3>Search</h3>
         <p>Use the search form to find information. Enter your query, select a country code (e.g., us, uk, ke), and specify the number of results.</p>
@@ -219,6 +225,17 @@
       </div>
       <div class="actions">
         <button id="helpCloseBtn" class="btn btn-primary">Got it</button>
+      </div>
+    </div>
+  </div>
+  <!-- Summary Modal -->
+  <div class="help-modal" id="summaryModal">
+    <div class="help-content" style="max-width: 700px;">
+      <div id="summaryModalContent">
+        <!-- Content will be injected by JavaScript -->
+      </div>
+      <div class="actions">
+        <button id="summaryCloseBtn" class="btn btn-primary">Close</button>
       </div>
     </div>
   </div>

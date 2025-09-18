@@ -19,6 +19,11 @@ import re
 import requests
 from urllib.parse import urljoin, urlparse
 from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
+import re
+from pydantic import BaseModel, HttpUrl
+import httpx
+from datetime import datetime
 
 load_dotenv()
 
@@ -117,6 +122,9 @@ API_KEY = os.getenv("SERPER_API_KEY")
 if not API_KEY:
     print("Warning: SERPER_API_KEY environment variable not set")
 client = SerperClient(api_key=API_KEY) if API_KEY else None
+
+class SummarizeRequest(BaseModel):
+    url: HttpUrl
 
 # ----- Intelligent Crawling with Streaming -----
 class IntelligentCrawler:
@@ -343,6 +351,125 @@ class IntelligentCrawler:
             del self.crawl_results[crawl_id]
         
         return len(old_crawl_ids)
+
+
+def clean_markdown(text: str) -> str:
+    """Removes markdown links and other artifacts for a cleaner text output."""
+    # Remove markdown links, keeping the link text
+    text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+    # Remove image links
+    text = re.sub(r'!\[[^\]]*\]\([^\)]+\)', '', text)
+    # Remove markdown emphasis (bold, italics)
+    text = re.sub(r'[\*_`]', '', text)
+    # Remove extra newlines
+    text = re.sub(r'\n{2,}', '\n', text)
+    return text.strip()
+
+def extract_publication_date(soup: BeautifulSoup) -> str:
+    """Extracts the publication date from common HTML meta tags."""
+    # Common meta tags for publication date
+    selectors = [
+        "meta[property='article:published_time']",
+        "meta[name='publication_date']",
+        "meta[name='dc.date.issued']",
+        "time[datetime]"
+    ]
+    for selector in selectors:
+        element = soup.select_one(selector)
+        if element:
+            date_str = element.get('content') or element.get('datetime')
+            if date_str:
+                try:
+                    # Parse ISO format and reformat it
+                    parsed_date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                    return parsed_date.strftime("%B %d, %Y")
+                except ValueError:
+                    continue # Try next selector if parsing fails
+    return "Not found"
+
+def extract_summary(text: str, sentence_count: int = 5) -> str:
+    """Extracts the first few sentences as a summary from cleaned text."""
+    if not text:
+        return "No content available to summarize."
+    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+    summary = ' '.join(sentences[:sentence_count])
+    return summary if summary else "Could not generate a summary."
+
+def extract_contacts(text: str) -> Dict[str, List[str]]:
+    """Extracts emails and potential organization names from cleaned text."""
+    emails = re.findall(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', text)
+    # Improved regex for capitalized entities (potential orgs/names)
+    org_pattern = r'\b[A-Z][A-Za-z\'-]+(?:\s+[A-Z][A-Za-z\'-]+){0,4}\b'
+    orgs = re.findall(org_pattern, text)
+    common_words = {'The', 'A', 'An', 'From', 'In', 'On', 'At', 'For', 'And', 'With', 'This', 'That'}
+    potential_orgs = [o.strip() for o in orgs if len(o) > 3 and o.split()[0] not in common_words]
+    
+    return {
+        "emails": list(set(emails))[:5], # Limit to 5 unique emails
+        "organizations": list(set(potential_orgs))[:5] # Limit to 5 unique orgs
+    }
+
+def extract_location(text: str) -> str:
+    """A better attempt to find a location or address."""
+    # Look for patterns with city, country, or specific address keywords
+    address_pattern = r'\b\d{1,5}\s+([A-Z][a-zA-Z]+\s+){1,4}(?:Street|St|Avenue|Ave|Road|Rd|Blvd)\b'
+    matches = re.search(address_pattern, text)
+    if matches:
+        return matches.group(0)
+    
+    # Check for city, country names (simple but effective)
+    location_keywords = ['Nairobi', 'Kenya', 'Lagos', 'Nigeria', 'Accra', 'Ghana', 'London', 'New York', 'Dakar', 'Senegal']
+    for line in text.split('\n'):
+        for keyword in location_keywords:
+            if keyword in line:
+                return line.strip()
+
+    return "Not specified"
+
+# --- Replace your existing /summarize endpoint with this one ---
+
+@app.post("/summarize")
+async def summarize_and_extract(data: SummarizeRequest):
+    """Fetches a URL, summarizes its content, and extracts key information."""
+    url = str(data.url)
+    try:
+        # Step 1: Fetch raw HTML for metadata extraction
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(url, follow_redirects=True)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, 'html.parser')
+        
+        publication_date = extract_publication_date(soup)
+
+        # Step 2: Use crawl4ai to get the main content
+        async with AsyncWebCrawler() as crawler:
+            config = CrawlerRunConfig(
+                word_count_threshold=100,
+                excluded_tags=['script', 'style', 'nav', 'footer', 'header', 'aside'],
+                remove_overlay_elements=True
+            )
+            result = await crawler.arun(url, config=config)
+
+        if not result or not result.success or not hasattr(result, 'markdown') or not result.markdown:
+            raise HTTPException(status_code=400, detail="Could not retrieve or process content from the URL.")
+
+        # Step 3: Clean and process the extracted content
+        cleaned_content = clean_markdown(result.markdown)
+        
+        return {
+            "url": url,
+            "title": getattr(result, 'title', "No title found"),
+            "publication_date": publication_date,
+            "summary": extract_summary(cleaned_content),
+            "contacts": extract_contacts(cleaned_content),
+            "location": extract_location(cleaned_content),
+        }
+
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=400, detail=f"Failed to fetch URL: {e}")
+    except Exception as e:
+        print(f"Error summarizing {url}: {e}")
+        raise HTTPException(status_code=500, detail=f"An error occurred while processing the URL: {e}")
 
 # Initialize intelligent crawler
 intelligent_crawler = IntelligentCrawler()

@@ -83,24 +83,46 @@ body {
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  overflow: hidden;
-}
-
-.logo {
-  height: 28px;
-  width: 28px;
-  flex-shrink: 0;
+  gap: 10px;
+  height: auto;
 }
 
 .brand-name {
-  font-weight: 700;
-  font-size: 1.3rem;
-  background: linear-gradient(90deg, #2ea3ff, #35c0ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  white-space: nowrap;
-  transition: opacity 0.2s ease, width 0.2s ease;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+/* Logo styling to blend with background */
+.logo {
+  height: 32px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  filter: brightness(1.1) contrast(1.05);
+  transition: filter 0.2s ease;
+}
+
+.logo:hover {
+  filter: brightness(1.2) contrast(1.1);
+}
+
+/* Brand container in sidebar header */
+.sidebar-header .brand {
+  padding: 4px 0;
+}
+
+/* Responsive logo adjustments */
+@media (max-width: 768px) {
+  .logo {
+    height: 28px;
+    max-width: 100px;
+  }
+  
+  .brand-name {
+    font-size: 16px;
+  }
 }
 
 .sidebar-toggle {
@@ -572,4 +594,246 @@ body {
   .sidebar-toggle-mobile {
     display: none;
   }
+}
+
+/* Add these styles to the end of your styles.css */
+
+/* View button in result card */
+.result-card-actions {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+  text-align: right;
+}
+
+.btn-view {
+  padding: 6px 14px;
+  font-size: 13px;
+  background: var(--input);
+  color: var(--muted);
+  border: 1px solid var(--border-color);
+}
+.btn-view:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: none; /* Override general button hover shadow */
+}
+
+/* Summary Modal Content Styles */
+#summaryModalContent h2 {
+    margin: 0 0 16px 0;
+    color: var(--accent);
+    font-size: 20px;
+}
+
+#summaryModalContent h3 {
+    margin: 20px 0 10px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #e6eef6;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+#summaryModalContent p, #summaryModalContent li {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+#summaryModalContent strong {
+    color: #c5d2e0;
+}
+
+#summaryModalContent .contact-list {
+    list-style: none;
+    padding-left: 0;
+}
+#summaryModalContent .contact-list li {
+    background: var(--input);
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border-color);
+}
+
+/* Title logo styling */
+.title-with-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.title-logo {
+  height: 40px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+  filter: brightness(1.15) contrast(1.08) saturate(1.1);
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.title-logo:hover {
+  filter: brightness(1.25) contrast(1.15) saturate(1.2);
+  transform: scale(1.02);
+}
+
+/* Ensure the title text aligns properly with the logo */
+.title-with-logo h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+/* Responsive adjustments for title logo */
+@media (max-width: 768px) {
+  .title-with-logo {
+    gap: 8px;
+  }
+  
+  .title-logo {
+    height: 32px;
+    max-width: 120px;
+  }
+  
+  .title-with-logo h2 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title-with-logo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .title-logo {
+    height: 28px;
+    max-width: 100px;
+  }
+  
+  .title-with-logo h2 {
+    font-size: 22px;
+  }
+}
+
+/* --- View Summary Modal Styles --- */
+.summary-modal-header {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+.summary-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #fff;
+}
+.summary-modal-header a {
+  font-size: 12px;
+  color: var(--muted);
+  word-break: break-all;
+  text-decoration: none;
+}
+.summary-modal-header a:hover {
+  color: var(--accent);
+}
+
+.summary-metadata {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 12px;
+  background-color: var(--input);
+  border-radius: 8px;
+}
+.metadata-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.metadata-item svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--muted);
+  flex-shrink: 0;
+}
+.metadata-item span {
+  font-weight: 500;
+  color: #e6eef6;
+}
+
+.summary-section h3 {
+  margin: 24px 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.summary-section p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #c5d2e0;
+}
+
+.entity-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+.entity-pill {
+  background-color: var(--input);
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #c5d2e0;
+  border: 1px solid var(--border-color);
+}
+.entity-pill .pill-label {
+  color: var(--muted);
+  margin-right: 6px;
+}
+
+/* --- Summary Modal Scrolling and Sizing --- */
+
+/* 1. Set a max-height on the modal box and use flexbox to manage its children */
+#summaryModal .help-content {
+  max-height: 85vh; /* Limit height to 85% of the viewport height */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent the container itself from scrolling */
+}
+
+/* 2. Make the main content area the part that grows and scrolls */
+#summaryModal #summaryModalContent {
+  flex: 1; /* Allows this element to grow and fill available space */
+  overflow-y: auto; /* Add a vertical scrollbar ONLY when content overflows */
+  padding-right: 16px; /* Add space for the scrollbar to prevent content overlap */
+}
+
+/* 3. (Optional but recommended) Style the new scrollbar to match the app's theme */
+#summaryModal #summaryModalContent::-webkit-scrollbar {
+  width: 6px;
+}
+#summaryModal #summaryModalContent::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+#summaryModal #summaryModalContent::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+#summaryModal #summaryModalContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
