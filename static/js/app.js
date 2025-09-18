@@ -179,7 +179,8 @@ function displayResults(results) {
   dom.searchResultsWrapper.classList.add('visible');
 }
 
-// In app.js, replace the entire handleViewSummary function with this one:
+// This should be the content of your handleViewSummary function in app.js
+
 async function handleViewSummary(e) {
     const url = e.target.dataset.url; if (!url) return;
     
@@ -200,12 +201,17 @@ async function handleViewSummary(e) {
 
         const data = await response.json();
         
-        let emailsHTML = data.contacts.emails.length > 0
-            ? data.contacts.emails.map(email => `<li class="entity-pill"><span class="pill-label">Email:</span>${email}</li>`).join('')
+        // --- THIS IS THE CRITICAL FIX ---
+        // It safely handles cases where 'emails' or 'organizations' might be null or undefined.
+        const emails = data.contacts?.emails || [];
+        const organizations = data.contacts?.organizations || [];
+
+        let emailsHTML = emails.length > 0
+            ? emails.map(email => `<li class="entity-pill"><span class="pill-label">Email:</span>${email}</li>`).join('')
             : '';
 
-        let orgsHTML = data.contacts.organizations.length > 0
-            ? data.contacts.organizations.map(org => `<li class="entity-pill"><span class="pill-label">Entity:</span>${org}</li>`).join('')
+        let orgsHTML = organizations.length > 0
+            ? organizations.map(org => `<li class="entity-pill"><span class="pill-label">Entity:</span>${org}</li>`).join('')
             : '';
             
         let entitiesHTML = (emailsHTML || orgsHTML) ? `<ul class="entity-pills">${emailsHTML}${orgsHTML}</ul>` : `<p>None found.</p>`;
@@ -219,11 +225,11 @@ async function handleViewSummary(e) {
             <div class="summary-metadata">
                 <div class="metadata-item">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M-4.5 12h22.5" /></svg>
-                    <span>${data.publication_date}</span>
+                    <span>${data.publication_date || "Not found"}</span>
                 </div>
                 <div class="metadata-item">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
-                    <span>${data.location}</span>
+                    <span>${data.location || "Not specified"}</span>
                 </div>
             </div>
 
