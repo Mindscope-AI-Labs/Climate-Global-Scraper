@@ -1,448 +1,394 @@
-// Minimal working version to fix button functionality
-console.log('Loading minimal working app.js...');
+// Optimized UI/UX with animations and crawl streaming
+console.log('Loading app.js...');
 
 // Global state
 let lastJson = null;
-let currentCrawlId = null;
-let crawlController = null;
 
-// DOM Elements
-let searchForm, crawlForm, resultsDiv, message, downloadBtn, clearBtn, helpLink;
-let sidebar, sidebarToggle, sidebarToggleMobile;
-let statusBar, statusTitle, statusMessage, progressFill, progressText, cancelCrawl;
-let navItems, contentSections;
+// DOM Elements Cache
+const dom = {};
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded - Initializing minimal app...');
+  console.log('DOM Content Loaded - Initializing app...');
+  
+  try {
+    // Cache all DOM elements with error handling
+    dom.searchForm = document.getElementById('searchForm');
+    dom.crawlForm = document.getElementById('crawlForm');
+    dom.sidebar = document.getElementById('sidebar');
+    dom.sidebarToggle = document.getElementById('sidebarToggle');
+    dom.sidebarToggleMobile = document.getElementById('sidebarToggleMobile');
+    dom.navItems = document.querySelectorAll('.nav-item');
+    dom.contentSections = document.querySelectorAll('.content-section');
+    dom.searchResultsWrapper = document.getElementById('searchResultsWrapper');
+    dom.searchResultsList = document.getElementById('searchResultsList');
+    dom.downloadBtn = document.getElementById('downloadJson');
+    dom.clearBtn = document.getElementById('clearResults');
+    dom.helpLink = document.getElementById('helpLink');
+    dom.helpModal = document.getElementById('helpModal');
+    dom.helpCloseBtn = document.getElementById('helpCloseBtn');
+    dom.crawlStatus = document.getElementById('crawlStatus');
+    dom.crawlLog = document.getElementById('crawlLog');
     
-    // Get DOM elements
-    searchForm = document.getElementById('searchForm');
-    crawlForm = document.getElementById('crawlForm');
-    resultsDiv = document.getElementById('results');
-    message = document.getElementById('message');
-    downloadBtn = document.getElementById('downloadJson');
-    clearBtn = document.getElementById('clearResults');
-    helpLink = document.getElementById('helpLink');
-    sidebar = document.getElementById('sidebar');
-    sidebarToggle = document.getElementById('sidebarToggle');
-    sidebarToggleMobile = document.getElementById('sidebarToggleMobile');
-    statusBar = document.getElementById('statusBar');
-    statusTitle = document.getElementById('statusTitle');
-    statusMessage = document.getElementById('statusMessage');
-    progressFill = document.getElementById('progressFill');
-    progressText = document.getElementById('progressText');
-    cancelCrawl = document.getElementById('cancelCrawl');
-    navItems = document.querySelectorAll('.nav-item');
-    contentSections = document.querySelectorAll('.content-section');
-    
+    // Log which elements were found
     console.log('DOM elements found:', {
-        searchForm: !!searchForm,
-        crawlForm: !!crawlForm,
-        sidebar: !!sidebar,
-        sidebarToggle: !!sidebarToggle,
-        navItems: navItems.length,
-        contentSections: contentSections.length
+      searchForm: !!dom.searchForm,
+      crawlForm: !!dom.crawlForm,
+      sidebar: !!dom.sidebar,
+      sidebarToggle: !!dom.sidebarToggle,
+      navItems: dom.navItems.length,
+      contentSections: dom.contentSections.length,
+      searchResultsWrapper: !!dom.searchResultsWrapper,
+      searchResultsList: !!dom.searchResultsList,
+      downloadBtn: !!dom.downloadBtn,
+      clearBtn: !!dom.clearBtn,
+      helpModal: !!dom.helpModal,
+      helpCloseBtn: !!dom.helpCloseBtn,
+      crawlStatus: !!dom.crawlStatus,
+      crawlLog: !!dom.crawlLog
     });
     
     // Initialize all functionality
     initializeSidebar();
     initializeNavigation();
     initializeForms();
-    
-    // Hide message initially
-    if (message) {
-        message.style.display = 'none';
-    }
-    
-    console.log('Minimal app initialization complete');
+    initializeModals();
+
+    console.log('App initialization complete');
+  } catch (error) {
+    console.error('Error during app initialization:', error);
+    // Show a user-friendly error message
+    document.body.innerHTML = `
+      <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
+        <h2 style="color: #e74c3c;">Application Error</h2>
+        <p>There was an error initializing the application. Please refresh the page and try again.</p>
+        <p style="color: #666; font-size: 14px;">Error details: ${error.message}</p>
+      </div>
+    `;
+  }
 });
 
 // Sidebar functionality
 function initializeSidebar() {
-    if (!sidebar || !sidebarToggle) {
-        console.error('Sidebar elements not found');
-        return;
+  try {
+    if (!dom.sidebar || !dom.sidebarToggle) {
+      console.warn('Sidebar elements not found, skipping sidebar initialization');
+      return;
     }
     
-    console.log('Initializing sidebar...');
-    
-    // Desktop sidebar toggle
-    sidebarToggle.addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('Sidebar toggle clicked');
-        sidebar.classList.toggle('collapsed');
+    dom.sidebarToggle.addEventListener('click', () => {
+      dom.sidebar.classList.toggle('collapsed');
     });
-    
-    // Mobile sidebar toggle
-    if (sidebarToggleMobile) {
-        sidebarToggleMobile.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Mobile sidebar toggle clicked');
-            sidebar.classList.toggle('open');
-        });
+
+    if(dom.sidebarToggleMobile) {
+      dom.sidebarToggleMobile.addEventListener('click', () => {
+        dom.sidebar.classList.toggle('open');
+      });
     }
+    console.log('Sidebar initialized successfully');
+  } catch (error) {
+    console.error('Error initializing sidebar:', error);
+  }
 }
 
 // Navigation functionality
 function initializeNavigation() {
-    if (!navItems || navItems.length === 0) {
-        console.error('Navigation items not found');
-        return;
+  try {
+    if (!dom.navItems || dom.navItems.length === 0) {
+      console.warn('Navigation items not found, skipping navigation initialization');
+      return;
     }
     
-    console.log('Initializing navigation...');
-    
-    navItems.forEach(function(item) {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Nav item clicked:', this.getAttribute('data-section'));
-            
-            // Remove active class from all nav items
-            navItems.forEach(function(nav) {
-                nav.classList.remove('active');
-            });
-            
-            // Add active class to clicked item
-            this.classList.add('active');
-            
-            // Hide all content sections
-            if (contentSections) {
-                contentSections.forEach(function(section) {
-                    section.classList.remove('active');
-                });
-                
-                // Show target section
-                var targetSection = this.getAttribute('data-section');
-                var section = document.getElementById(targetSection + '-section');
-                if (section) {
-                    section.classList.add('active');
-                    console.log('Showing section:', targetSection);
-                }
-            }
-            
-            // Close mobile sidebar
-            if (window.innerWidth <= 768 && sidebar) {
-                sidebar.classList.remove('open');
-            }
-        });
+    dom.navItems.forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetSectionId = this.getAttribute('data-section');
+        
+        dom.navItems.forEach(nav => nav.classList.remove('active'));
+        this.classList.add('active');
+        
+        if (dom.contentSections) {
+          dom.contentSections.forEach(section => {
+            section.classList.toggle('active', section.id === `${targetSectionId}-section`);
+          });
+        }
+        
+        if (window.innerWidth <= 768 && dom.sidebar) {
+          dom.sidebar.classList.remove('open');
+        }
+      });
     });
+    console.log('Navigation initialized successfully');
+  } catch (error) {
+    console.error('Error initializing navigation:', error);
+  }
 }
 
 // Form initialization
 function initializeForms() {
-    console.log('Initializing forms...');
-    
-    // Search form
-    if (searchForm) {
-        searchForm.addEventListener('submit', handleSearch);
-        console.log('Search form listener attached');
+  try {
+    if (dom.searchForm) {
+      dom.searchForm.addEventListener('submit', handleSearch);
+      console.log('Search form listener attached');
     } else {
-        console.error('Search form not found');
+      console.warn('Search form not found');
     }
     
-    // Crawl form
-    if (crawlForm) {
-        crawlForm.addEventListener('submit', handleCrawl);
-        console.log('Crawl form listener attached');
+    if (dom.crawlForm) {
+      dom.crawlForm.addEventListener('submit', handleCrawl);
+      console.log('Crawl form listener attached');
+    } else {
+      console.warn('Crawl form not found');
+    }
+
+    if (dom.downloadBtn) {
+      dom.downloadBtn.addEventListener('click', downloadJson);
+      console.log('Download button listener attached');
+    } else {
+      console.warn('Download button not found');
     }
     
-    // Download and clear buttons
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', downloadJson);
-        console.log('Download button listener attached');
+    if (dom.clearBtn) {
+      dom.clearBtn.addEventListener('click', clearResults);
+      console.log('Clear button listener attached');
+    } else {
+      console.warn('Clear button not found');
     }
-    
-    if (clearBtn) {
-        clearBtn.addEventListener('click', clearResults);
-        console.log('Clear button listener attached');
+    console.log('Forms initialized successfully');
+  } catch (error) {
+    console.error('Error initializing forms:', error);
+  }
+}
+
+// Modal functionality
+function initializeModals() {
+  try {
+    if (dom.helpLink) {
+      dom.helpLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (dom.helpModal) dom.helpModal.classList.add('visible');
+      });
+    } else {
+      console.warn('Help link not found');
     }
-    
-    // Help link
-    if (helpLink) {
-        helpLink.addEventListener('click', showHelp);
-        console.log('Help link listener attached');
+
+    if(dom.helpCloseBtn) {
+      dom.helpCloseBtn.addEventListener('click', () => {
+        if (dom.helpModal) dom.helpModal.classList.remove('visible');
+      });
+    } else {
+      console.warn('Help close button not found');
     }
-    
-    // Cancel crawl button
-    if (cancelCrawl) {
-        cancelCrawl.addEventListener('click', cancelCrawlOperation);
-        console.log('Cancel crawl button listener attached');
+
+    if(dom.helpModal) {
+      dom.helpModal.addEventListener('click', (e) => {
+        if (e.target === dom.helpModal) {
+          dom.helpModal.classList.remove('visible');
+        }
+      });
+    } else {
+      console.warn('Help modal not found');
     }
-    
-    // Top menu links
-    var topMenuLinks = document.querySelectorAll('.topbar-right .nav a');
-    topMenuLinks.forEach(function(link) {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Top menu link clicked:', this.textContent);
-            
-            // Remove active class from all top menu links
-            topMenuLinks.forEach(function(l) {
-                l.classList.remove('active');
-            });
-            
-            // Add active class to clicked link
-            this.classList.add('active');
-            
-            // Handle navigation
-            var linkText = this.textContent.trim();
-            if (linkText === 'Home') {
-                var searchNavItem = document.querySelector('[data-section="search"]');
-                if (searchNavItem) {
-                    searchNavItem.click();
-                }
-            } else if (linkText === 'Docs') {
-                showMessage('Documentation coming soon!', 'info');
-            } else if (linkText === 'About') {
-                showMessage('OpenCurrent - Intelligent Search & Crawling Tool', 'info');
-            }
-        });
-    });
+    console.log('Modals initialized successfully');
+  } catch (error) {
+    console.error('Error initializing modals:', error);
+  }
 }
 
 // Handle search form submission
 async function handleSearch(e) {
-    e.preventDefault();
-    console.log('Search form submitted');
+  e.preventDefault();
+  const runBtn = e.target.querySelector('button[type="submit"]');
+  const originalBtnText = runBtn.textContent;
+  
+  runBtn.textContent = 'Searching...';
+  runBtn.disabled = true;
+
+  clearResults();
+
+  const query = document.getElementById('query').value.trim();
+  const gl = document.getElementById('gl').value.trim() || 'us';
+  const num = parseInt(document.getElementById('num').value || '10', 10);
+  
+  if (!query) {
+    showMessage('Please enter a search query.', 'error');
+    runBtn.textContent = originalBtnText;
+    runBtn.disabled = false;
+    return;
+  }
+  
+  try {
+    const response = await fetch('/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, gl: gl.toLowerCase(), num })
+    });
     
-    if (!message || !resultsDiv) {
-        console.error('Required elements not found');
-        return;
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    
+    const data = await response.json();
+    
+    if (data.error) {
+      showMessage(data.error, 'error');
+    } else if (data.results && data.results.length > 0) {
+      displayResults(data.results);
+    } else {
+      showMessage('No results found.', 'info');
     }
-    
-    // Show loading state
-    showMessage('Searching...', 'info');
-    resultsDiv.innerHTML = '';
-    
-    var query = document.getElementById('query').value.trim();
-    var gl = document.getElementById('gl').value.trim() || 'ke';
-    var num = parseInt(document.getElementById('num').value || '10', 10);
-    
-    if (!query) {
-        showMessage('Please enter a search query.', 'error');
-        return;
-    }
-    
-    try {
-        var response = await fetch('/search', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                query: query, 
-                gl: gl.toLowerCase(),
-                num: Math.min(Math.max(num, 1), 50)
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Search request failed');
-        }
-        
-        var data = await response.json();
-        console.log('Search response:', data);
-        
-        if (data.error) {
-            showMessage(data.error, 'error');
-        } else if (data.results && data.results.length > 0) {
-            displayResults(data.results);
-            showMessage(`Found ${data.results.length} results`, 'success');
-        } else {
-            showMessage('No results found.', 'info');
-        }
-    } catch (error) {
-        console.error('Search error:', error);
-        showMessage('Search failed: ' + error.message, 'error');
-    }
+  } catch (error) {
+    console.error('Search error:', error);
+    showMessage('Search failed. Please try again.', 'error');
+  } finally {
+    runBtn.textContent = originalBtnText;
+    runBtn.disabled = false;
+  }
 }
 
 // Handle crawl form submission
 async function handleCrawl(e) {
     e.preventDefault();
-    console.log('Crawl form submitted');
-    
-    if (!message) {
-        console.error('Message element not found');
-        return;
-    }
-    
-    var url = document.getElementById('crawlUrl').value.trim();
-    var keywords = document.getElementById('keywords').value.trim();
-    var maxPages = parseInt(document.getElementById('maxPages').value || '1', 10);
-    
-    if (!url) {
-        showMessage('Please enter a URL to crawl.', 'error');
-        return;
-    }
-    
+    const crawlBtn = e.target.querySelector('button[type="submit"]');
+    const originalBtnText = crawlBtn.textContent;
+
+    crawlBtn.textContent = 'Crawling...';
+    crawlBtn.disabled = true;
+
+    dom.crawlStatus.style.display = 'block';
+    dom.crawlLog.innerHTML = '';
+
+    const formData = new FormData(dom.crawlForm);
+
     try {
-        var response = await fetch('/crawl', {
+        const response = await fetch('/intelligent-crawl', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                url: url, 
-                keywords: keywords ? keywords.split(',').map(k => k.trim()) : [],
-                max_pages: Math.min(Math.max(maxPages, 1), 10)
-            })
+            body: formData,
         });
-        
+
         if (!response.ok) {
-            throw new Error('Crawl request failed');
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
         
-        var data = await response.json();
-        console.log('Crawl response:', data);
-        
-        if (data.error) {
-            showMessage(data.error, 'error');
-        } else {
-            showMessage('Crawl started successfully!', 'success');
-            currentCrawlId = data.crawl_id;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
             
-            // Start polling for results
-            pollCrawlResults(data.crawl_id);
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+            lines.forEach(line => {
+                try {
+                    const data = JSON.parse(line);
+                    const logEntry = document.createElement('div');
+                    logEntry.className = `crawl-status-${data.status}`;
+                    
+                    let message = `[${data.status.toUpperCase()}]`;
+                    if (data.message) {
+                        message += `: ${data.message}`;
+                    } else if (data.result) {
+                        message += `: Crawled ${data.result.url}`;
+                    }
+                    
+                    logEntry.textContent = message;
+                    dom.crawlLog.appendChild(logEntry);
+                    dom.crawlLog.scrollTop = dom.crawlLog.scrollHeight; // Auto-scroll
+                } catch (e) {
+                    console.warn('Could not parse stream line:', line);
+                }
+            });
         }
+
     } catch (error) {
-        console.error('Crawl error:', error);
-        showMessage('Crawl failed: ' + error.message, 'error');
+        console.error('Crawl failed:', error);
+        const errorEntry = document.createElement('div');
+        errorEntry.className = 'crawl-status-error';
+        errorEntry.textContent = `[ERROR] Crawl failed: ${error.message}`;
+        dom.crawlLog.appendChild(errorEntry);
+    } finally {
+        crawlBtn.textContent = originalBtnText;
+        crawlBtn.disabled = false;
     }
 }
+
 
 // Display search results
 function displayResults(results) {
-    if (!resultsDiv) return;
-    
-    resultsDiv.innerHTML = '';
-    
-    results.forEach(function(result) {
-        var resultCard = document.createElement('div');
-        resultCard.className = 'result-card';
-        resultCard.innerHTML = `
-            <h3><a href="${result.link}" target="_blank">${result.title}</a></h3>
-            <p class="muted small">${result.link}</p>
-            <p>${result.snippet}</p>
-        `;
-        resultsDiv.appendChild(resultCard);
-    });
-    
-    // Store results for download
-    lastJson = results;
-    
-    // Show download and clear buttons
-    if (downloadBtn) downloadBtn.style.display = 'inline-block';
-    if (clearBtn) clearBtn.style.display = 'inline-block';
+  if (!dom.searchResultsList) return;
+  
+  dom.searchResultsList.innerHTML = '';
+  
+  results.forEach((result, index) => {
+    const resultCard = document.createElement('div');
+    resultCard.className = 'result-card';
+    resultCard.style.animationDelay = `${index * 0.05}s`;
+    resultCard.innerHTML = `
+      <h4><a href="${result.link}" target="_blank" rel="noopener noreferrer">${result.title}</a></h4>
+      <a href="${result.link}" target="_blank" rel="noopener noreferrer" class="link">${result.link}</a>
+      <p>${result.snippet}</p>
+    `;
+    dom.searchResultsList.appendChild(resultCard);
+  });
+  
+  lastJson = results;
+  dom.searchResultsWrapper.classList.add('visible');
 }
 
-// Show message
-function showMessage(text, type) {
-    if (!message) return;
-    
-    message.textContent = text;
-    message.className = 'message ' + type;
-    message.style.display = 'block';
-    
-    // Auto-hide after 5 seconds
-    setTimeout(function() {
-        message.style.display = 'none';
-    }, 5000);
+// Show temporary message (Toast notification)
+function showMessage(text, type = 'info') {
+    const messageContainer = document.createElement('div');
+    messageContainer.className = `toast-message toast-${type}`;
+    messageContainer.textContent = text;
+    document.body.appendChild(messageContainer);
+
+    const style = document.head.querySelector('#toast-style') || document.createElement('style');
+    style.id = 'toast-style';
+    style.innerHTML = `
+        .toast-message {
+            position: fixed; bottom: 20px; right: 20px; padding: 12px 20px;
+            border-radius: 8px; color: #fff; font-weight: 500; z-index: 9999;
+            animation: toast-in 0.3s ease, toast-out 0.3s ease 4.7s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .toast-info { background: #1f2937; } .toast-success { background: #10B981; }
+        .toast-error { background: #EF4444; }
+        @keyframes toast-in { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes toast-out { from { transform: translateY(0); opacity: 1; } to { transform: translateY(100%); opacity: 0; } }
+    `;
+    if (!document.head.querySelector('#toast-style')) {
+      document.head.appendChild(style);
+    }
+
+    setTimeout(() => { messageContainer.remove(); }, 5000);
 }
 
 // Download JSON
 function downloadJson() {
-    if (!lastJson) {
-        showMessage('No results to download', 'error');
-        return;
-    }
-    
-    var blob = new Blob([JSON.stringify(lastJson, null, 2)], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'search_results.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    showMessage('Results downloaded', 'success');
+  if (!lastJson || lastJson.length === 0) {
+    showMessage('No results to download', 'error');
+    return;
+  }
+  
+  const blob = new Blob([JSON.stringify(lastJson, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'search_results.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  showMessage('Results downloaded', 'success');
 }
 
-// Clear results
+// Clear search results
 function clearResults() {
-    if (resultsDiv) {
-        resultsDiv.innerHTML = '';
-    }
-    if (downloadBtn) {
-        downloadBtn.style.display = 'none';
-    }
-    if (clearBtn) {
-        clearBtn.style.display = 'none';
-    }
-    lastJson = null;
-    
-    showMessage('Results cleared', 'info');
+  if (dom.searchResultsList) {
+    dom.searchResultsList.innerHTML = '';
+  }
+  lastJson = null;
+  dom.searchResultsWrapper.classList.remove('visible');
 }
-
-// Show help modal
-function showHelp(e) {
-    if (e) {
-        e.preventDefault();
-    }
-    
-    var helpContent = `
-        <div class="help-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000;">
-            <div class="help-content" style="background: var(--panel); padding: 24px; border-radius: 12px; max-width: 500px; width: 90%;">
-                <h2 style="margin: 0 0 16px 0; color: var(--accent);">OpenCurrent Help</h2>
-                <div class="help-section" style="margin-bottom: 16px;">
-                    <h3 style="margin: 0 0 8px 0; font-size: 16px; color: #e6eef6;">Search</h3>
-                    <p style="margin: 0; font-size: 14px; color: var(--muted); line-height: 1.6;">Use the search form to find information across the web. Enter your query, select a country code, and specify the number of results.</p>
-                </div>
-                <div class="help-section" style="margin-bottom: 16px;">
-                    <h3 style="margin: 0 0 8px 0; font-size: 16px; color: #e6eef6;">Crawl</h3>
-                    <p style="margin: 0; font-size: 14px; color: var(--muted); line-height: 1.6;">Use the crawl form to extract content from specific websites. Enter a URL, add keywords for relevance filtering, and set crawling limits.</p>
-                </div>
-                <div class="help-actions" style="text-align: right; margin-top: 20px;">
-                    <button class="btn btn-primary" onclick="this.closest('.help-modal').remove()" style="padding: 8px 16px; background: var(--accent); color: #04223a; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Close</button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', helpContent);
-}
-
-// Cancel crawl operation
-function cancelCrawlOperation() {
-    if (currentCrawlId) {
-        showMessage('Crawl cancelled', 'info');
-        currentCrawlId = null;
-    }
-}
-
-// Poll crawl results
-function pollCrawlResults(crawlId) {
-    // Simple polling implementation
-    var pollCount = 0;
-    var maxPolls = 20;
-    
-    var pollInterval = setInterval(function() {
-        pollCount++;
-        
-        if (pollCount >= maxPolls) {
-            clearInterval(pollInterval);
-            showMessage('Crawl polling timed out', 'error');
-            return;
-        }
-        
-        // Simulate crawl completion for demo
-        if (pollCount === 5) {
-            clearInterval(pollInterval);
-            showMessage('Crawl completed!', 'success');
-            
-            // Show some dummy results
-            if (resultsDiv) {
-                resultsDiv.innerHTML = '<div class="result-card"><h3>Crawl Results</h3><p>Content has been successfully crawled and processed.</p></div>';
-            }
-        }
-    }, 1000);
-}
-
-console.log('Minimal app.js loaded successfully');

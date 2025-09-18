@@ -6,25 +6,60 @@
   <title>OpenCurrent</title>
   <link href="/static/css/styles.css" rel="stylesheet" />
   <style>
-    /* Force logo size */
-    .logo {
-      height: 24px !important;
-      width: auto !important;
-      max-width: 100px !important;
-      object-fit: contain;
+    /* Add styles for crawl status */
+    :root {
+      --border-color: rgba(255, 255, 255, 0.05);
+      --panel: :141820;
+      --arcent: #2ea3ff;
+      --input: #1b2128;
     }
-    /* Reset brand container */
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      height: auto !important;
+    
+    #coot {
+      --border-color: rgba(255, 255, 255, 0.05);
+      --panel: :141820;
+      --arcent: #2ea3ff;
+      --input: #1b2128;
     }
-    /* Ensure header stays compact */
-    .topbar {
-      min-height: 40px !important;
-      padding: 4px 0 !important;
+    
+    #coot {
+      --border-color: rgba(255, 255, 255, 0.05);
+      --panel: #141820;
+      --accent: #2ea3ff;
+      --input: #1b2128;
     }
+    
+    #crawlStatus {
+      margin-top: 24px;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--panel);
+      display: none; /* Hidden by default */
+    }
+    #crawlStatus h3 {
+      margin: 0 0 16px 0;
+      color: var(--accent);
+    }
+    #crawlLog {
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 13px;
+      background: var(--input);
+      padding: 12px;
+      border-radius: 8px;
+    }
+    #crawlLog div {
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    #crawlLog div:last-child {
+      border-bottom: none;
+    }
+    .crawl-status-started { color: #35c0ff; }
+    .crawl-status-streaming { color: #e6eef6; }
+    .crawl-status-completed { color: #10B981; font-weight: bold; }
+    .crawl-status-error { color: #EF4444; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -36,8 +71,8 @@
           <img src="/static/images/logo.png" alt="OpenCurrent Logo" class="logo" />
           <span class="brand-name">OpenCurrent</span>
         </div>
-        <button class="sidebar-toggle" id="sidebarToggle">
-          <span class="toggle-icon">☰</span>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
       </div>
       
@@ -46,30 +81,12 @@
           <h3 class="nav-section-title">Main</h3>
           <ul class="nav-menu">
             <li><a href="#" class="nav-item active" data-section="search">
-              <span class="nav-icon">🔍</span>
+              <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></span>
               <span class="nav-text">Search</span>
             </a></li>
             <li><a href="#" class="nav-item" data-section="crawl">
-              <span class="nav-icon">🕷️</span>
+              <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h.5A2.5 2.5 0 0021.5 5.5V3.935m-16.485 0A2.5 2.5 0 015.5 2h.5a2 2 0 012 2v.5a2 2 0 002 2h.5a2 2 0 012 2v.5a2 2 0 002 2h.5a2 2 0 012 2v.5a2 2 0 002 2h.5a2.5 2.5 0 012.485 2.065"></path></svg></span>
               <span class="nav-text">Crawl</span>
-            </a></li>
-            <li><a href="#" class="nav-item" data-section="results">
-              <span class="nav-icon">📊</span>
-              <span class="nav-text">Results</span>
-            </a></li>
-          </ul>
-        </div>
-        
-        <div class="nav-section">
-          <h3 class="nav-section-title">Tools</h3>
-          <ul class="nav-menu">
-            <li><a href="#" class="nav-item" data-section="settings">
-              <span class="nav-icon">⚙️</span>
-              <span class="nav-text">Settings</span>
-            </a></li>
-            <li><a href="#" class="nav-item" data-section="help">
-              <span class="nav-icon">❓</span>
-              <span class="nav-text">Help</span>
             </a></li>
           </ul>
         </div>
@@ -79,67 +96,61 @@
     <!-- Main Content Area -->
     <div class="main-content">
       <header class="topbar">
-        <div class="topbar-left">
-          <button class="sidebar-toggle-mobile" id="sidebarToggleMobile">
-            <span class="toggle-icon">☰</span>
-          </button>
-          <h1 class="page-title">Search & Crawl</h1>
-        </div>
-        <div class="topbar-right">
-          <nav class="nav">
-            <a href="#" class="active">Home</a>
-            <a href="#">Docs</a>
-            <a href="#" class="muted">About</a>
-          </nav>
-        </div>
+        <button class="sidebar-toggle-mobile" id="sidebarToggleMobile" aria-label="Toggle mobile menu">
+          ☰
+        </button>
+        <nav class="nav">
+          <a href="#" class="active">Home</a>
+          <a href="#">Docs</a>
+          <a href="#">About</a>
+        </nav>
       </header>
-
-      <!-- Scraping Status Bar -->
-      <div class="status-bar" id="statusBar" style="display: none;">
-        <div class="status-content">
-          <div class="status-icon">
-            <div class="spinner"></div>
-          </div>
-          <div class="status-info">
-            <div class="status-title" id="statusTitle">Initializing...</div>
-            <div class="status-message" id="statusMessage">Preparing to crawl</div>
-            <div class="status-progress">
-              <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-              </div>
-              <div class="progress-text" id="progressText">0%</div>
-            </div>
-          </div>
-          <div class="status-actions">
-            <button class="btn btn-small btn-ghost" id="cancelCrawl">Cancel</button>
-          </div>
-        </div>
-      </div>
 
       <main class="content">
         <!-- Search Section -->
         <section class="content-section active" id="search-section">
           <div class="section-header">
             <h2>Knowledge Search</h2>
-            <p class="muted">Search and discover information from across the web with precision and ease.</p>
+            <p>Search and discover information from across the web with precision and ease.</p>
           </div>
           
-          <div class="search-container">
-            <form id="searchForm" class="card">
-              <div class="search-block">
-                <label class="muted small">Search Query</label>
-                <input id="query" class="input" placeholder="e.g. climate change initiatives Africa" required />
-
-                <div class="row">
-                  <input id="gl" class="input-small" placeholder="Country code (e.g., us, uk)" value="us" />
-                  <input id="num" type="number" class="input-small" placeholder="Results count" min="1" max="50" value="10" />
+          <div class="search-content-wrapper">
+            <div class="search-form-wrapper">
+              <form id="searchForm" class="card">
+                  <div class="form-group">
+                    <label for="query">Search Query</label>
+                    <input id="query" class="input" placeholder="e.g. AI advancements in Africa" required />
+                  </div>
+                  <div class="input-row">
+                    <div class="form-group" style="flex:1">
+                      <label for="gl">Country</label>
+                      <input id="gl" class="input" placeholder="us" value="us" />
+                    </div>
+                    <div class="form-group" style="flex:1">
+                      <label for="num">Results</label>
+                      <input id="num" type="number" class="input" placeholder="10" min="1" max="50" value="10" />
+                    </div>
+                  </div>
+                  <div class="actions">
+                    <button type="submit" id="runBtn" class="btn btn-primary">Search</button>
+                  </div>
+              </form>
+            </div>
+            
+            <div class="search-results-wrapper" id="searchResultsWrapper">
+              <div class="results-panel">
+                <div class="results-header">
+                  <h3>Search Results</h3>
+                  <div>
+                    <button id="downloadJson" class="btn btn-ghost">Download</button>
+                    <button id="clearResults" class="btn btn-ghost">Clear</button>
+                  </div>
                 </div>
-
-                <div class="actions">
-                  <button type="submit" id="runBtn" class="btn btn-primary">Search</button>
+                <div id="searchResultsList" class="results-list">
+                  <!-- Results will be injected here -->
                 </div>
               </div>
-            </form>
+            </div>
           </div>
         </section>
 
@@ -147,44 +158,39 @@
         <section class="content-section" id="crawl-section">
           <div class="section-header">
             <h2>Intelligent Crawling</h2>
-            <p class="muted">Crawl websites and extract relevant content based on keywords.</p>
+            <p>Crawl websites and extract relevant content based on keywords with real-time updates.</p>
           </div>
-          
-          <div class="crawl-container">
+
+          <div class="crawl-form-wrapper" style="max-width: 600px;">
             <form id="crawlForm" class="card">
-              <div class="crawl-block">
-                <label class="muted small">URL to Crawl</label>
-                <input id="crawlUrl" class="input" placeholder="https://example.com/article" required />
-
-                <label class="muted small">Keywords (comma separated)</label>
-                <input id="crawlKeywords" class="input" placeholder="introduction, custom tools, ai" />
-
-                <div class="row">
-                  <input id="maxDepth" type="number" class="input-small" placeholder="Max depth" min="1" max="5" value="1" />
-                  <input id="maxPages" type="number" class="input-small" placeholder="Max pages" min="1" max="10" value="1" />
+              <div class="form-group">
+                <label for="crawlUrl">URL to Crawl</label>
+                <input id="crawlUrl" name="url" class="input" placeholder="https://example.com" required />
+              </div>
+              <div class="form-group">
+                <label for="crawlKeywords">Keywords (comma-separated)</label>
+                <input id="crawlKeywords" name="keywords" class="input" placeholder="ai, data science, research" required />
+              </div>
+              <div class="input-row">
+                <div class="form-group" style="flex:1">
+                  <label for="max_depth">Max Depth</label>
+                  <input id="max_depth" name="max_depth" type="number" class="input" value="2" min="1" max="5" />
                 </div>
-
-                <div class="actions">
-                  <button type="submit" id="crawlBtn" class="btn btn-primary">Start Crawling</button>
+                <div class="form-group" style="flex:1">
+                  <label for="max_pages">Max Pages</label>
+                  <input id="max_pages" name="max_pages" type="number" class="input" value="10" min="1" max="50" />
                 </div>
               </div>
+              <div class="actions">
+                <button type="submit" class="btn btn-primary">Start Crawling</button>
+            </div>
             </form>
           </div>
-        </section>
 
-        <!-- Results Section -->
-        <section class="content-section" id="results-section">
-          <div class="results-container">
-            <div class="results-header">
-              <h2>Results</h2>
-              <div>
-                <button id="downloadJson" class="btn btn-ghost">Download Results</button>
-                <button id="clearResults" class="btn btn-ghost">Clear</button>
-              </div>
-            </div>
-            <div id="results" class="results"></div>
-            <div id="message" class="message"></div>
-          </div>
+          <div id="crawlStatus">
+            <h3>Crawl Log</h3>
+            <div id="crawlLog"></div>
+         </iv>
         </section>
       </main>
 
@@ -193,11 +199,27 @@
           <div class="copyright">
             2025 OpenCurrent. All rights reserved.
           </div>
-          <div class="footer-actions">
-            <a href="#" id="helpLink" class="help-link">Help</a>
-          </div>
+          <a href="#" id="helpLink" class="help-link">Help</a>
         </div>
       </footer>
+    </div>
+  </div>
+
+  <!-- Help Modal -->
+  <div class="help-modal" id="helpModal">
+    <div class="help-content">
+      <h2>OpenCurrent Help</h2>
+      <div class="help-section" style="margin-bottom: 16px;">
+        <h3>Search</h3>
+        <p>Use the search form to find information. Enter your query, select a country code (e.g., us, uk, ke), and specify the number of results.</p>
+      </div>
+       <div class="help-section" style="margin-bottom: 16px;">
+        <h3>Crawl</h3>
+        <p>Use the crawl form to extract content from websites. Enter a URL, add keywords for filtering, and set crawling limits.</p>
+      </div>
+      <div class="actions">
+        <button id="helpCloseBtn" class="btn btn-primary">Got it</button>
+      </div>
     </div>
   </div>
 
