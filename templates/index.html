@@ -8,76 +8,35 @@
   <link rel="shortcut icon" type="image/png" href="/static/images/title-logo.png" />
   <link href="/static/css/styles.css" rel="stylesheet" />
   <style>
-    /* Add styles for crawl status */
     :root {
-      --border-color: rgba(255, 255, 255, 0.05);
-      --panel: :141820;
-      --arcent: #2ea3ff;
-      --input: #1b2128;
-    }
-    
-    #coot {
-      --border-color: rgba(255, 255, 255, 0.05);
-      --panel: :141820;
-      --arcent: #2ea3ff;
-      --input: #1b2128;
-    }
-    
-    #coot {
-      --border-color: rgba(255, 255, 255, 0.05);
+      --border-color: rgba(255, 255, 255, 0.08);
       --panel: #141820;
       --accent: #2ea3ff;
       --input: #1b2128;
     }
-    
-    #crawlStatus {
-      margin-top: 24px;
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      background: var(--panel);
-      display: none; /* Hidden by default */
+    .chat-container { display: none; margin-top: 24px; }
+    .chat-window { height: 400px; max-height: 60vh; overflow-y: auto; background: var(--input); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .chat-message { padding: 10px 14px; border-radius: 12px; max-width: 80%; line-height: 1.6; font-size: 14px; }
+    .user-message { background: var(--accent); color: white; align-self: flex-end; border-radius: 12px 12px 2px 12px; }
+    .ai-message { background: var(--panel); color: #e6eef6; align-self: flex-start; border-radius: 12px 12px 12px 2px; }
+    .ingest-status { margin-top: 16px; padding: 12px; border-radius: 8px; background: var(--input); display: none; color: #e6eef6; }
+    /* --- NEW STYLE FOR THE CHAT BUTTON --- */
+    .btn-chat {
+        padding: 6px 14px; font-size: 13px; background: transparent;
+        color: var(--muted); border: 1px solid var(--border-color);
     }
-    #crawlStatus h3 {
-      margin: 0 0 16px 0;
-      color: var(--accent);
-    }
-    #crawlLog {
-      max-height: 400px;
-      overflow-y: auto;
-      font-family: monospace;
-      font-size: 13px;
-      background: var(--input);
-      padding: 12px;
-      border-radius: 8px;
-    }
-    #crawlLog div {
-      padding: 4px 0;
-      border-bottom: 1px solid var(--border-color);
-    }
-    #crawlLog div:last-child {
-      border-bottom: none;
-    }
-    .crawl-status-started { color: #35c0ff; }
-    .crawl-status-streaming { color: #e6eef6; }
-    .crawl-status-completed { color: #10B981; font-weight: bold; }
-    .crawl-status-error { color: #EF4444; font-weight: bold; }
+    .btn-chat:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .result-card-actions { display: flex; gap: 8px; justify-content: flex-end; }
   </style>
 </head>
 <body>
   <div class="page">
-    <!-- Left Sidebar Navigation -->
+    <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="brand">
-          <img src="/static/images/logo.png" alt="OpenCurrent Logo" class="logo" />
-          <span class="brand-name">OpenCurrent</span>
-        </div>
-        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
+        <div class="brand"><img src="/static/images/logo.png" alt="OpenCurrent Logo" class="logo" /><span class="brand-name">OpenCurrent</span></div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
       </div>
-      
       <div class="sidebar-content">
         <div class="nav-section">
           <h3 class="nav-section-title">Main</h3>
@@ -86,160 +45,63 @@
               <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></span>
               <span class="nav-text">Search</span>
             </a></li>
-            <li><a href="#" class="nav-item" data-section="crawl">
-              <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h.5A2.5 2.5 0 0021.5 5.5V3.935m-16.485 0A2.5 2.5 0 015.5 2h.5a2 2 0 012 2v.5a2 2 0 002 2h.5a2 2 0 012 2v.5a2 2 0 002 2h.5a2 2 0 012 2v.5a2 2 0 002 2h.5a2.5 2.5 0 012.485 2.065"></path></svg></span>
-              <span class="nav-text">Crawl</span>
+            <li><a href="#" class="nav-item" data-section="chat">
+              <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" /></svg></span>
+              <span class="nav-text">Chat with Site</span>
             </a></li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <!-- Main Content Area -->
+    <!-- Main Content -->
     <div class="main-content">
       <header class="topbar">
-        <button class="sidebar-toggle-mobile" id="sidebarToggleMobile" aria-label="Toggle mobile menu">
-          ☰
-        </button>
-        <nav class="nav">
-          <a href="#" class="active">Home</a>
-          <a href="#">Docs</a>
-          <a href="#">About</a>
-        </nav>
+          <button class="sidebar-toggle-mobile" id="sidebarToggleMobile" aria-label="Toggle mobile menu">☰</button>
+          <nav class="nav">
+              <a href="#" class="active">Home</a><a href="#">Docs</a><a href="#">About</a>
+          </nav>
       </header>
-
       <main class="content">
         <!-- Search Section -->
         <section class="content-section active" id="search-section">
-          <div class="section-header">
-            <div class="title-with-logo">
-              <!-- <img src="/static/images/title-logo.png" alt="Title Logo" class="title-logo" /> -->
-              <h2>Knowledge Search</h2>
-            </div>
-            <p>Search and discover information from across the web with precision and ease.</p>
-          </div>
-          
+          <div class="section-header"><h2>Knowledge Search</h2><p>Search and discover information from across the web with precision and ease.</p></div>
           <div class="search-content-wrapper">
             <div class="search-form-wrapper">
               <form id="searchForm" class="card">
-                  <div class="form-group">
-                    <label for="query">Search Query</label>
-                    <input id="query" class="input" placeholder="e.g. AI advancements in Africa" required />
-                  </div>
-                  <div class="input-row">
-                    <div class="form-group" style="flex:1">
-                      <label for="gl">Country</label>
-                      <input id="gl" class="input" placeholder="us" value="us" />
-                    </div>
-                    <div class="form-group" style="flex:1">
-                      <label for="num">Results</label>
-                      <input id="num" type="number" class="input" placeholder="10" min="1" max="50" value="10" />
-                    </div>
-                  </div>
-                  <div class="actions">
-                    <button type="submit" id="runBtn" class="btn btn-primary">Search</button>
-                  </div>
+                <div class="form-group"><label for="query">Search Query</label><input id="query" class="input" placeholder="e.g. AI advancements in Africa" required /></div>
+                <div class="actions"><button type="submit" id="runBtn" class="btn btn-primary">Search</button></div>
               </form>
             </div>
-            
             <div class="search-results-wrapper" id="searchResultsWrapper">
-              <div class="results-panel">
-                <div class="results-header">
-                  <h3>Search Results</h3>
-                  <div>
-                    <button id="downloadJson" class="btn btn-ghost">Download</button>
-                    <button id="clearResults" class="btn btn-ghost">Clear</button>
-                  </div>
-                </div>
-                <div id="searchResultsList" class="results-list">
-                  <!-- Results will be injected here -->
-                </div>
-              </div>
+              <div class="results-panel"><div class="results-header"><h3>Search Results</h3></div><div id="searchResultsList" class="results-list"></div></div>
             </div>
           </div>
         </section>
-
-        <!-- Crawl Section -->
-        <section class="content-section" id="crawl-section">
-          <div class="section-header">
-            <h2>Intelligent Crawling</h2>
-            <p>Crawl websites and extract relevant content based on keywords with real-time updates.</p>
-          </div>
-
-          <div class="crawl-form-wrapper" style="max-width: 600px;">
-            <form id="crawlForm" class="card">
-              <div class="form-group">
-                <label for="crawlUrl">URL to Crawl</label>
-                <input id="crawlUrl" name="url" class="input" placeholder="https://example.com" required />
-              </div>
-              <div class="form-group">
-                <label for="crawlKeywords">Keywords (comma-separated)</label>
-                <input id="crawlKeywords" name="keywords" class="input" placeholder="ai, data science, research" required />
-              </div>
-              <div class="input-row">
-                <div class="form-group" style="flex:1">
-                  <label for="max_depth">Max Depth</label>
-                  <input id="max_depth" name="max_depth" type="number" class="input" value="2" min="1" max="5" />
-                </div>
-                <div class="form-group" style="flex:1">
-                  <label for="max_pages">Max Pages</label>
-                  <input id="max_pages" name="max_pages" type="number" class="input" value="10" min="1" max="50" />
-                </div>
-              </div>
-              <div class="actions">
-                <button type="submit" class="btn btn-primary">Start Crawling</button>
-            </div>
+        <!-- Chat Section -->
+        <section class="content-section" id="chat-section">
+          <div class="section-header"><h2>Chat with a Website</h2><p>Enter a URL to ingest its content, then ask questions to get AI-powered answers.</p></div>
+          <div class="ingest-container" id="ingestContainer" style="max-width: 700px;">
+            <form id="ingestForm" class="card">
+              <div class="form-group"><label for="ingestUrl">URL to Ingest and Chat With</label><input id="ingestUrl" class="input" placeholder="https://example.com/about-us" required /></div>
+              <div class="actions"><button type="submit" class="btn btn-primary">Ingest Site</button></div>
             </form>
+            <div id="ingestStatus" class="ingest-status"></div>
           </div>
-
-          <div id="crawlStatus">
-            <h3>Crawl Log</h3>
-            <div id="crawlLog"></div>
-         </iv>
+          <div class="chat-container" id="chatContainer">
+            <div id="chatWindow" class="chat-window"><div class="ai-message">Hello! Once the site is ingested, ask me anything about its content.</div></div>
+            <form id="chatForm" class="card"><div class="form-group" style="margin-bottom: 0;"><input id="chatInput" class="input" placeholder="Ask a question about the website..." required autocomplete="off" /></div></form>
+          </div>
         </section>
       </main>
-
       <footer class="footer">
-        <div class="footer-content">
-          <div class="copyright">
-            2025 OpenCurrent. All rights reserved.
-          </div>
-          <a href="#" id="helpLink" class="help-link">Help</a>
-        </div>
+        <div class="footer-content"><div class="copyright">&copy; 2025 OpenCurrent. All rights reserved.</div><a href="#" id="helpLink" class="help-link">Help</a></div>
       </footer>
     </div>
   </div>
-
-  <!-- Help Modal -->
-  <div class="help-modal" id="helpModal">
-    <div class="help-content">
-      <h2>OpenCurrent Help</h2>
-      <h3>Turning streams of data into trusted knowledge.</h3>
-      <div class="help-section" style="margin-bottom: 16px;">
-        <h3>Search</h3>
-        <p>Use the search form to find information. Enter your query, select a country code (e.g., us, uk, ke), and specify the number of results.</p>
-      </div>
-       <div class="help-section" style="margin-bottom: 16px;">
-        <h3>Crawl</h3>
-        <p>Use the crawl form to extract content from websites. Enter a URL, add keywords for filtering, and set crawling limits.</p>
-      </div>
-      <div class="actions">
-        <button id="helpCloseBtn" class="btn btn-primary">Got it</button>
-      </div>
-    </div>
-  </div>
-  <!-- Summary Modal -->
-  <div class="help-modal" id="summaryModal">
-    <div class="help-content" style="max-width: 700px;">
-      <div id="summaryModalContent">
-        <!-- Content will be injected by JavaScript -->
-      </div>
-      <div class="actions">
-        <button id="summaryCloseBtn" class="btn btn-primary">Close</button>
-      </div>
-    </div>
-  </div>
-
+  <!-- Modals -->
+  <div class="help-modal" id="helpModal"><!-- ... (Help modal content) ... --></div>
+  <div class="help-modal" id="summaryModal"><div class="help-content" style="max-width: 700px;"><div id="summaryModalContent"></div><div class="actions"><button id="summaryCloseBtn" class="btn btn-primary">Close</button></div></div></div>
   <script src="/static/js/app.js"></script>
 </body>
 </html>
