@@ -1,0 +1,65 @@
+{
+  "searches": [
+    {
+      "query": "climate innitiatives in africa",
+      "timestamp": "2025-09-22T11:30:23.009888"
+    },
+    {
+      "query": "genz",
+      "timestamp": "2025-09-22T11:30:00.889482"
+    },
+    {
+      "query": "Italian restaurants in Nairobi",
+      "timestamp": "2025-09-22T11:27:47.768688"
+    },
+    {
+      "query": "Most disruptive Climate startups in Africa",
+      "timestamp": "2025-09-22T09:59:41.462907"
+    },
+    {
+      "query": "AI advancements in Africa",
+      "timestamp": "2025-09-18T19:27:50.907616"
+    },
+    {
+      "query": "nairobi",
+      "timestamp": "2025-09-18T19:27:40.442213"
+    },
+    {
+      "query": "UNICEF",
+      "timestamp": "2025-09-18T19:27:30.772567"
+    },
+    {
+      "query": "tell me about Sewu Steve",
+      "timestamp": "2025-09-18T19:27:03.022235"
+    },
+    {
+      "query": "ABC place",
+      "timestamp": "2025-09-18T19:26:48.887524"
+    },
+    {
+      "query": "Neural Labs Africa",
+      "timestamp": "2025-09-18T19:04:35.712353"
+    },
+    {
+      "query": "climate non-profits in Kenya",
+      "timestamp": "2025-09-18T19:00:36.365290"
+    }
+  ],
+  "chats": [
+    {
+      "url": "https://disruptafrica.com/2025/09/19/6-african-startups-share-400k-funding-from-finca-ventures-prize-competition/",
+      "session_id": "4b5858c37a881d99535672b5ccb27dc1cf28b98250fd3ad1d870f085ca120b67",
+      "timestamp": "2025-09-22T10:00:50.702919"
+    },
+    {
+      "url": "https://www.unicefusa.org/stories/thousands-injured-children-gaza-need-urgent-medical-evacuation",
+      "session_id": "a7a2134c15afc0a7597bbf31a227a8b4f11d1aca8b8a2612358584b65df7d1de",
+      "timestamp": "2025-09-18T19:40:59.634381"
+    },
+    {
+      "url": "https://x.com/wwf_kenya?lang=en",
+      "session_id": "dcb9e79138672f2414995be242e1e213100c3fbde3c7d5ad58901935042390e0",
+      "timestamp": "2025-09-18T19:01:05.807962"
+    }
+  ]
+}

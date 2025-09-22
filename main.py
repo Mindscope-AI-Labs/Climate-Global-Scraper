@@ -2,8 +2,10 @@ import os
 import re
 import json
 import uuid
-import asyncio
+import hashlib
+import threading
 from pathlib import Path
+from datetime import datetime
 from typing import List, Dict, Any, Optional
 
 import httpx
@@ -33,22 +35,41 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 SERPER_API_KEY = os.getenv("SERPER_API_KEY")
 
 # --- FastAPI App Setup ---
-app = FastAPI(title="OpenCurrent", version="3.1.0")
+app = FastAPI(title="OpenCurrent", version="3.3.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 BASE_DIR = Path(__file__).parent
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-# --- ChromaDB & RAG Setup (No changes) ---
-# ... (This section is unchanged)
+# --- History Management ---
+HISTORY_FILE = Path("history.json")
+history_lock = threading.Lock()
+
+def load_history() -> Dict[str, List]:
+    with history_lock:
+        if not HISTORY_FILE.exists():
+            return {"searches": [], "chats": []}
+        try:
+            with open(HISTORY_FILE, "r") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            return {"searches": [], "chats": []}
+
+def save_history(data: Dict[str, List]):
+    with history_lock:
+        with open(HISTORY_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+
+def url_to_collection_name(url: str) -> str:
+    return hashlib.sha256(url.encode('utf-8')).hexdigest()
+
+# --- ChromaDB & RAG Setup ---
 CHROMA_DB_DIR = "./chroma_db"
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 chroma_client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
 embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBEDDING_MODEL_NAME)
 
-
-# --- LangChain Models & Chains (No changes) ---
-# ... (This section is unchanged)
+# --- LangChain Models & Chains ---
 rag_llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.1, api_key=GROQ_API_KEY)
 rag_prompt_template = """
 You are an expert assistant. Answer the user's question based ONLY on the following context.
@@ -67,16 +88,26 @@ class ContactInfo(LangChainBaseModel):
     emails: Optional[List[str]] = LangChainField(default=[], description="List of extracted email addresses.")
     organizations: Optional[List[str]] = LangChainField(default=[], description="List of mentioned organizations, companies, or NGOs.")
 class PageSummary(LangChainBaseModel):
-    summary: str = LangChainField(description="A concise, neutral summary of the article's main points in 3-4 sentences.")
+    subject_name: str = LangChainField(description="The primary name of the company, organization, or place this article is about.")
+    summary: str = LangChainField(description="A concise, neutral summary of the article's main points in 3-4 sentences, making sure to mention the subject's name.")
     publication_date: Optional[str] = LangChainField(default="Not found", description="The publication date of the article (e.g., 'August 15, 2024').")
-    location: Optional[str] = LangChainField(default="Not specified", description="The primary city, country, or location mentioned.")
+    location: Optional[str] = LangChainField(default="Not specified", description="The primary city, country, or physical address mentioned.")
     contacts: ContactInfo = LangChainField(description="Extracted contact information.")
+    funds_money_investments: Optional[List[str]] = LangChainField(default=[], description="List of mentioned funds, money amounts, investments, or financial information.")
+    projects_activities: Optional[List[str]] = LangChainField(default=[], description="List of mentioned projects, activities, initiatives, or programs.")
+    locations: Optional[List[str]] = LangChainField(default=[], description="List of mentioned locations, cities, countries, or geographic areas.")
 
 summarization_llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0, api_key=GROQ_API_KEY)
 summarization_parser = PydanticOutputParser(pydantic_object=PageSummary)
 summarization_prompt_template = """
-You are an expert at analyzing web articles and extracting key information.
-Based on the following page content, provide a structured summary.
+You are a meticulous information extraction expert. Analyze the following web page content and extract the requested information.
+- First, identify the primary subject (the company, organization, or place name) the page is about.
+- Then, write a concise summary that includes this subject's name.
+- Extract any mention of Funds/Money/Investments.
+- Extract any mention of Projects/Activities.
+- Extract any mention of Locations.
+- Extract any mention of Organizations.
+- Extract any other requested metadata accurately.
 Follow the formatting instructions precisely.
 
 {format_instructions}
@@ -92,25 +123,20 @@ summarization_prompt = ChatPromptTemplate.from_template(
 )
 summarization_chain = summarization_prompt | summarization_llm | summarization_parser
 
-
-# --- Utility & Background Task Functions (No changes) ---
-# ... (This section is unchanged)
+# --- Utility & Background Task Functions ---
 def smart_chunk_markdown(markdown: str, max_len: int = 800) -> List[str]:
-    #... (function content)
     chunks = re.split(r'(^# .+$|^## .+$)', markdown, flags=re.MULTILINE)
     combined = [(chunks[i] + chunks[i+1]).strip() for i in range(1, len(chunks), 2)]
     if not combined:
         combined = [p.strip() for p in markdown.split('\n\n') if p.strip()]
     final_chunks = [c[i:i+max_len] for c in combined for i in range(0, len(c), max_len)]
-    return final_chunks
+    return [c for c in final_chunks if c]
 
 def format_results_as_context(query_results: Dict[str, Any]) -> str:
-    #... (function content)
     if not query_results or not query_results.get("documents"): return ""
     return "\n\n---\n\n".join(query_results["documents"][0])
 
 async def ingest_url_task(url: str, collection_name: str):
-    #... (function content)
     print(f"Starting ingestion for {url} into collection '{collection_name}'")
     try:
         async with AsyncWebCrawler() as crawler:
@@ -119,7 +145,6 @@ async def ingest_url_task(url: str, collection_name: str):
             print(f"Failed to crawl {url}: {result.error_message}"); return
         chunks = smart_chunk_markdown(result.markdown)
         if not chunks: print(f"No content chunks from {url}"); return
-        
         collection = chroma_client.get_or_create_collection(name=collection_name, embedding_function=embedding_func)
         ids = [f"{collection_name}-{i}" for i in range(len(chunks))]
         metadatas = [{"source": url} for _ in chunks]
@@ -130,12 +155,16 @@ async def ingest_url_task(url: str, collection_name: str):
     except Exception as e:
         print(f"❌ Error during ingestion for {url}: {e}")
 
-# --- Pydantic Models for API Requests (No changes) ---
-# ... (This section is unchanged)
+# --- Pydantic Models for API Requests ---
 class SearchRequest(BaseModel):
     query: str
+    type: Optional[str] = "search"
 class IngestRequest(BaseModel):
     url: HttpUrl
+class IngestResponse(BaseModel):
+    message: str
+    session_id: str
+    url: str
 class ChatRequest(BaseModel):
     question: str
     session_id: str
@@ -143,127 +172,100 @@ class SummarizeRequest(BaseModel):
     url: HttpUrl
 
 # --- API Endpoints ---
-
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# --- MAJOR CHANGE HERE ---
+@app.get("/history", response_class=JSONResponse)
+async def get_history():
+    return load_history()
+
 @app.post("/search")
 async def search_endpoint(data: SearchRequest):
-    """
-    Perform a search using a direct call to Google Serper for more control.
-    Fetches 10 results from the past week.
-    """
     if not SERPER_API_KEY:
         raise HTTPException(status_code=500, detail="Serper API key is not configured.")
-        
     search_url = "https://google.serper.dev/search"
-    payload = json.dumps({
-        "q": data.query,
-        "num": 10,       # Fetch 10 results
-        "tbs": "qdr:w"   # Query date range: past week
-    })
-    headers = {
-        'X-API-KEY': SERPER_API_KEY,
-        'Content-Type': 'application/json'
-    }
-    
+    payload = {"q": data.query, "num": 10}
+    if data.type == "news":
+        payload["tbs"] = "qdr:d"
+    elif data.type == "places":
+        payload["type"] = "places"
+    else:
+        payload["tbs"] = "qdr:w"
+    headers = {'X-API-KEY': SERPER_API_KEY, 'Content-Type': 'application/json'}
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.post(search_url, headers=headers, content=payload)
+            response = await client.post(search_url, headers=headers, content=json.dumps(payload))
             response.raise_for_status()
             search_results = response.json()
-
-        organic_results = search_results.get("organic", [])
-        formatted_results = [{"title": r.get("title"), "link": r.get("link"), "snippet": r.get("snippet")} for r in organic_results]
+        history = load_history()
+        if data.query not in [s['query'] for s in history['searches']]:
+            history["searches"].insert(0, {"query": data.query, "timestamp": datetime.now().isoformat()})
+            history["searches"] = history["searches"][:50]
+            save_history(history)
+        results_key = "places" if data.type == "places" else "news" if data.type == "news" else "organic"
+        results_list = search_results.get(results_key, [])
+        formatted_results = [{"title": r.get("title"), "link": r.get("link", "#"), "snippet": r.get("snippet") or r.get("address")} for r in results_list]
         return {"results": formatted_results}
-
-    except httpx.HTTPStatusError as e:
-        print(f"Error from Serper API: {e.response.text}")
-        raise HTTPException(status_code=e.response.status_code, detail="Failed to fetch search results.")
     except Exception as e:
         print(f"Error during Serper search: {e}")
         raise HTTPException(status_code=500, detail="An error occurred during search.")
 
-# In main.py, find and replace the ENTIRE /summarize endpoint with this new version.
-# The rest of the file (imports, other endpoints, etc.) remains the same.
-
 @app.post("/summarize")
 async def summarize_endpoint(data: SummarizeRequest):
-    """
-    Summarizes a URL using a RAG approach to handle large documents and improve quality.
-    """
     url = str(data.url)
-    # Use a unique name for the temporary collection to avoid conflicts
     temp_collection_name = f"summary-{uuid.uuid4().hex[:8]}"
-
     try:
-        # --- Step 1: Ingest the document into a temporary in-memory collection ---
-        print(f"Starting RAG summary for {url} in temp collection '{temp_collection_name}'")
         async with AsyncWebCrawler() as crawler:
             result = await crawler.arun(url=url)
-        
         if not result.success or not result.markdown:
             raise HTTPException(status_code=400, detail="Failed to crawl the page for summarization.")
-
         chunks = smart_chunk_markdown(result.markdown)
         if not chunks:
             raise HTTPException(status_code=400, detail="No content could be extracted for summarization.")
-
-        # Create a temporary, in-memory collection for this one-time task
-        collection = chroma_client.get_or_create_collection(
-            name=temp_collection_name,
-            embedding_function=embedding_func
-        )
-        
-        # Add the document chunks to the collection
-        collection.add(
-            ids=[f"chunk-{i}" for i in range(len(chunks))],
-            documents=chunks,
-            metadatas=[{"source": url} for _ in chunks]
-        )
-
-        # --- Step 2: Retrieve the most relevant chunks for a general summary ---
-        # We query for broad, high-level topics to get the best chunks for a summary.
+        collection = chroma_client.get_or_create_collection(name=temp_collection_name, embedding_function=embedding_func)
+        collection.add(ids=[f"chunk-{i}" for i in range(len(chunks))], documents=chunks, metadatas=[{"source": url} for _ in chunks])
         summary_query = "What are the main topics, key points, and conclusions of this document?"
-        
-        query_results = collection.query(
-            query_texts=[summary_query],
-            n_results=7  # Retrieve a few more chunks for a comprehensive summary
-        )
-        
+        query_results = collection.query(query_texts=[summary_query], n_results=7)
         context = format_results_as_context(query_results)
-
         if not context:
             raise HTTPException(status_code=500, detail="Could not build a context for summarization.")
-            
-        # --- Step 3: Pass the retrieved context to the existing summarization chain ---
-        # The chain is already designed to take content and output a structured Pydantic object.
         summary_data = await summarization_chain.ainvoke({"page_content": context})
-        
         return summary_data.dict()
-
     except Exception as e:
         print(f"Error during RAG summarization: {e}")
         raise HTTPException(status_code=500, detail=f"An error occurred during summarization: {str(e)}")
-        
     finally:
-        # --- Step 4: Clean up the temporary collection ---
-        # This is crucial to prevent memory bloat.
-        print(f"Cleaning up temporary collection: {temp_collection_name}")
-        chroma_client.delete_collection(name=temp_collection_name)
-        
-         
-@app.post("/ingest")
-# ... (function content is unchanged)
+        if chroma_client.get_collection(name=temp_collection_name):
+            print(f"Cleaning up temporary collection: {temp_collection_name}")
+            chroma_client.delete_collection(name=temp_collection_name)
+
+@app.post("/ingest", response_model=IngestResponse)
 async def ingest_endpoint(request: IngestRequest, background_tasks: BackgroundTasks):
-    session_id = f"session-{uuid.uuid4().hex[:8]}"
-    background_tasks.add_task(ingest_url_task, url=str(request.url), collection_name=session_id)
-    return {"message": "Ingestion started. You can now begin chatting.", "session_id": session_id}
+    url_str = str(request.url)
+    session_id = url_to_collection_name(url_str)
+    history = load_history()
+    existing_chat = next((c for c in history['chats'] if c['session_id'] == session_id), None)
+    if existing_chat:
+        existing_chat['timestamp'] = datetime.now().isoformat()
+    else:
+        history['chats'].insert(0, {"url": url_str, "session_id": session_id, "timestamp": datetime.now().isoformat()})
+    history['chats'] = sorted(history['chats'], key=lambda x: x['timestamp'], reverse=True)[:50]
+    save_history(history)
+    background_tasks.add_task(ingest_url_task, url=url_str, collection_name=session_id)
+    return IngestResponse(message="Ingestion started.", session_id=session_id, url=url_str)
+
+@app.get("/ingest-status/{session_id}", response_class=JSONResponse)
+async def get_ingest_status(session_id: str):
+    try:
+        chroma_client.get_collection(name=session_id, embedding_function=embedding_func)
+        return {"status": "ready"}
+    except ValueError:
+        return {"status": "pending"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
 
 @app.post("/chat")
-# ... (function content is unchanged)
 async def chat_endpoint(request: ChatRequest):
     try:
         collection = chroma_client.get_collection(name=request.session_id, embedding_function=embedding_func)
@@ -276,10 +278,8 @@ async def chat_endpoint(request: ChatRequest):
     except ValueError:
          raise HTTPException(status_code=404, detail=f"Chat session '{request.session_id}' not found.")
     except Exception as e:
-        print(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail="An error occurred during chat.")
 
-# --- Main Execution ---
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
