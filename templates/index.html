@@ -12,7 +12,7 @@
   <div class="page">
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="brand"><img src="/static/images/logo.png" alt="OpenCurrent Logo" class="logo" /><span class="brand-name">OpenCurrent</span></div>
+        <div class="brand"><a href="/home"><img src="/static/images/title-logo.png" alt="OpenCurrent Logo" class="logo" /></a><span class="brand-name">OpenCurrent</span></div>
         <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
       </div>
       <div class="sidebar-content">
@@ -22,150 +22,190 @@
             <li><a href="#" class="nav-item active" data-section="search"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></span><span class="nav-text">Search</span></a></li>
             <li><a href="#" class="nav-item" data-section="chat"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" /></svg></span><span class="nav-text">Chat with Site</span></a></li>
             <li><a href="#" class="nav-item" data-section="knowledge-base"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6-2.292m0 4.584l-6-3.375m6 3.375l6-3.375" /></svg></span><span class="nav-text">Knowledge Base</span></a></li>
-          </ul>
-        </div>
-        <div class="nav-section">
-          <h3 class="nav-section-title">History</h3>
-          <ul class="nav-menu">
-            <li><a href="#" class="nav-item" data-section="history"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></span><span class="nav-text">History</span></a></li>
-          </ul>
-        </div>
+        </ul>
       </div>
-    </nav>
-    <div class="main-content">
-      <header class="topbar">
-          <button class="sidebar-toggle-mobile" id="sidebarToggleMobile" aria-label="Toggle mobile menu">☰</button>
-          <nav class="nav"><a href="#" class="active">Home</a><a href="#">Docs</a><a href="#">About</a></nav>
-      </header>
-      <main class="content">
-        <section class="content-section active" id="search-section">
-          <div class="section-header"><h2>Knowledge Search</h2><p>Search and discover information from across the web with precision and ease.</p></div>
-          <div class="search-content-wrapper">
-            <div class="search-form-wrapper">
-              <form id="searchForm" class="card">
-                <div class="search-filters" id="searchFilters">
-                    <button type="button" class="filter-btn active" data-type="search">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <circle cx="11" cy="11" r="8" stroke-width="2"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 8v6M8 11h6" stroke-width="2"/>
-                        </svg>
-                        Web
-                    </button>
-                    <button type="button" class="filter-btn" data-type="news">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <rect x="4" y="6" width="16" height="15" rx="1" stroke-width="2"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h8M8 14h8M8 18h5" stroke-width="2"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6V4a1 1 0 011-1h14a1 1 0 011 1v2" stroke-width="2"/>
-                        </svg>
-                        News
-                    </button>
-                    <button type="button" class="filter-btn" data-type="places">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2"/>
-                            <circle cx="12" cy="11" r="3" stroke-width="2"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2" stroke-width="1.5" opacity="0.6"/>
-                        </svg>
-                        Places
-                    </button>
-                </div>
-                <div class="form-group"><label for="query">Search Query</label><input id="query" class="input" placeholder="e.g. AI impact on climate change" required /></div>
-                <div class="actions"><button type="submit" id="runBtn" class="btn btn-primary">Search</button></div>
-              </form>
-            </div>
-            <div class="search-results-wrapper" id="searchResultsWrapper"><div class="results-panel"><div class="results-header"><h3>Search Results</h3></div><div id="searchResultsList" class="results-list"></div></div></div>
-          </div>
-        </section>
-        <section class="content-section" id="chat-section">
-          <div class="section-header"><h2>Chat with a Website</h2><p>Enter a URL to ingest its content, then ask questions to get AI-powered answers.</p></div>
-          <div class="ingest-container" id="ingestContainer" style="max-width: 700px;">
-            <form id="ingestForm" class="card">
-              <div class="form-group"><label for="ingestUrl">URL to Ingest and Chat With</label><input id="ingestUrl" class="input" placeholder="https://example.com/about-us" required /></div>
-              <div class="actions"><button type="submit" class="btn btn-primary">Ingest Site</button></div>
+      <div class="nav-section">
+        <h3 class="nav-section-title">History</h3>
+        <ul class="nav-menu">
+          <li><a href="#" class="nav-item" data-section="history"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></span><span class="nav-text">History</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-section">
+        <h3 class="nav-section-title">Settings</h3>
+        <ul class="nav-menu">
+          <li><a href="#" class="nav-item" data-section="settings"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></span><span class="nav-text">Settings</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="main-content">
+    <header class="topbar">
+        <button class="sidebar-toggle-mobile" id="sidebarToggleMobile" aria-label="Toggle mobile menu">☰</button>
+        <nav class="nav"><a href="#" class="active">Home</a><a href="#">Docs</a><a href="#">About</a></nav>
+    </header>
+    <main class="content">
+      <section class="content-section active" id="search-section">
+        <div class="section-header"><h2>Knowledge Search</h2><p>Search and discover information from across the web with precision and ease.</p></div>
+        <div class="search-content-wrapper">
+          <div class="search-form-wrapper">
+            <form id="searchForm" class="card">
+              <div class="search-filters" id="searchFilters">
+                  <button type="button" class="filter-btn active" data-type="search">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <circle cx="11" cy="11" r="8" stroke-width="2"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 8v6M8 11h6" stroke-width="2"/>
+                      </svg>
+                      Web
+                  </button>
+                  <button type="button" class="filter-btn" data-type="news">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <rect x="4" y="6" width="16" height="15" rx="1" stroke-width="2"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h8M8 14h8M8 18h5" stroke-width="2"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6V4a1 1 0 011-1h14a1 1 0 011 1v2" stroke-width="2"/>
+                      </svg>
+                      News
+                  </button>
+                  <button type="button" class="filter-btn" data-type="places">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2"/>
+                          <circle cx="12" cy="11" r="3" stroke-width="2"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2" stroke-width="1.5" opacity="0.6"/>
+                      </svg>
+                      Places
+                  </button>
+              </div>
+              <div class="form-group"><label for="query">Search Query</label><input id="query" class="input" placeholder="e.g. AI impact on climate change" required /></div>
+              <div class="actions"><button type="submit" id="runBtn" class="btn btn-primary">Search</button></div>
             </form>
-            <div id="ingestStatus" class="ingest-status"></div>
           </div>
-          <div class="chat-container" id="chatContainer">
-            <div id="chatWindow" class="chat-window"><div class="ai-message">Hello! Once the site is ingested, ask me anything about its content.</div></div>
-            <form id="chatForm" class="card"><div class="form-group" style="margin-bottom: 0;"><input id="chatInput" class="input" placeholder="Ask a question about the website..." required autocomplete="off" /></div></form>
+          <div class="search-results-wrapper" id="searchResultsWrapper"><div class="results-panel"><div class="results-header"><h3>Search Results</h3></div><div id="searchResultsList" class="results-list"></div></div></div>
+        </div>
+      </section>
+      <section class="content-section" id="chat-section">
+        <div class="section-header"><h2>Chat with a Website</h2><p>Enter a URL to ingest its content, then ask questions to get AI-powered answers.</p></div>
+        <div class="ingest-container" id="ingestContainer" style="max-width: 700px;">
+          <form id="ingestForm" class="card">
+            <div class="form-group"><label for="ingestUrl">URL to Ingest and Chat With</label><input id="ingestUrl" class="input" placeholder="https://example.com/about-us" required /></div>
+            <div class="actions"><button type="submit" class="btn btn-primary">Ingest Site</button></div>
+          </form>
+          <div id="ingestStatus" class="ingest-status"></div>
+        </div>
+        <div class="chat-container" id="chatContainer">
+          <div id="chatWindow" class="chat-window"><div class="ai-message">Hello! Once the site is ingested, ask me anything about its content.</div></div>
+          <form id="chatForm" class="card"><div class="form-group" style="margin-bottom: 0;"><input id="chatInput" class="input" placeholder="Ask a question about the website..." required autocomplete="off" /></div></form>
+        </div>
+      </section>
+      <section class="content-section" id="knowledge-base-section">
+          <div class="section-header"><h2>Knowledge Base</h2><p>Access information you have previously searched and saved.</p></div>
+          <div id="knowledgeBaseList" class="knowledge-base-list"></div>
+      </section>
+      <section class="content-section" id="history-section">
+          <div class="section-header"><h2>History</h2><p>Review your recent search queries and chat sessions.</p></div>
+          <div class="history-container">
+              <div class="history-controls">
+                  <div class="history-actions">
+                      <button class="btn btn-ghost" id="clearSearchHistory">
+                          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Clear Search History
+                      </button>
+                      <button class="btn btn-ghost" id="clearChatHistory">
+                          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Clear Chat History
+                      </button>
+                  </div>
+                  <div class="history-stats">
+                      <div class="stat-item">
+                          <span class="stat-number" id="searchHistoryCount">0</span>
+                          <span class="stat-label">Searches</span>
+                      </div>
+                      <div class="stat-item">
+                          <span class="stat-number" id="chatHistoryCount">0</span>
+                          <span class="stat-label">Chats</span>
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="history-columns">
+                  <div class="history-column">
+                      <div class="history-column-header">
+                          <h3>
+                              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                              </svg>
+                              Search History
+                          </h3>
+                          <span class="history-count" id="searchCount">0 items</span>
+                      </div>
+                      <div class="history-content">
+                          <ul id="searchHistoryList" class="history-list"></ul>
+                          <div class="history-empty" id="searchHistoryEmpty" style="display: none;">
+                              <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                              </svg>
+                              <p>No search history yet</p>
+                              <span>Your searches will appear here</span>
+                          </div>
+                      </div>
+                  </div>
+                  
+                  <div class="history-column">
+                      <div class="history-column-header">
+                          <h3>
+                              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                              </svg>
+                              Chat History
+                          </h3>
+                          <span class="history-count" id="chatCount">0 items</span>
+                      </div>
+                      <div class="history-content">
+                          <ul id="chatHistoryList" class="history-list"></ul>
+                          <div class="history-empty" id="chatHistoryEmpty" style="display: none;">
+                              <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                              </svg>
+                              <p>No chat history yet</p>
+                              <span>Your chat sessions will appear here</span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
           </div>
         </section>
-        <section class="content-section" id="knowledge-base-section">
-            <div class="section-header"><h2>Knowledge Base</h2><p>Access information you have previously searched and saved.</p></div>
-            <div id="knowledgeBaseList" class="knowledge-base-list"></div>
-        </section>
-        <section class="content-section" id="history-section">
-            <div class="section-header"><h2>History</h2><p>Review your recent search queries and chat sessions.</p></div>
-            <div class="history-container">
-                <div class="history-controls">
-                    <div class="history-actions">
-                        <button class="btn btn-ghost" id="clearSearchHistory">
-                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Clear Search History
-                        </button>
-                        <button class="btn btn-ghost" id="clearChatHistory">
-                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Clear Chat History
-                        </button>
-                    </div>
-                    <div class="history-stats">
-                        <div class="stat-item">
-                            <span class="stat-number" id="searchHistoryCount">0</span>
-                            <span class="stat-label">Searches</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number" id="chatHistoryCount">0</span>
-                            <span class="stat-label">Chats</span>
-                        </div>
+        <section class="content-section" id="settings-section">
+            <div class="section-header"><h2>Settings</h2><p>Customize your application experience and preferences.</p></div>
+            <div class="settings-container">
+                <div class="settings-card">
+                    <h3>Appearance</h3>
+                    <div class="setting-item">
+                        <label for="themeSelect" class="setting-label">Theme</label>
+                        <select id="themeSelect" class="setting-select">
+                            <option value="dark">Dark</option>
+                            <option value="light">Light</option>
+                            <option value="auto">Auto (System)</option>
+                        </select>
                     </div>
                 </div>
-                
-                <div class="history-columns">
-                    <div class="history-column">
-                        <div class="history-column-header">
-                            <h3>
-                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                                Search History
-                            </h3>
-                            <span class="history-count" id="searchCount">0 items</span>
-                        </div>
-                        <div class="history-content">
-                            <ul id="searchHistoryList" class="history-list"></ul>
-                            <div class="history-empty" id="searchHistoryEmpty" style="display: none;">
-                                <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                                <p>No search history yet</p>
-                                <span>Your searches will appear here</span>
-                            </div>
-                        </div>
+                <div class="settings-card">
+                    <h3>Preferences</h3>
+                    <div class="setting-item">
+                        <label for="resultsPerPage" class="setting-label">Results Per Page</label>
+                        <select id="resultsPerPage" class="setting-select">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
                     </div>
-                    
-                    <div class="history-column">
-                        <div class="history-column-header">
-                            <h3>
-                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                Chat History
-                            </h3>
-                            <span class="history-count" id="chatCount">0 items</span>
-                        </div>
-                        <div class="history-content">
-                            <ul id="chatHistoryList" class="history-list"></ul>
-                            <div class="history-empty" id="chatHistoryEmpty" style="display: none;">
-                                <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                <p>No chat history yet</p>
-                                <span>Your chat sessions will appear here</span>
-                            </div>
-                        </div>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <input type="checkbox" id="autoSaveResults" class="setting-checkbox" checked>
+                            Auto-save search results
+                        </label>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenCurrent</title>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+    <style>
+        /* --- CSS STYLES --- */
+
+        /* 1. Base & Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1a1a1a; /* Fallback color */
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* 2. Main Hero Section */
+        .hero-section {
+            height: 100vh;
+            width: 100%;
+            /* Royalty-free image from Unsplash by eberhard grossgasteiger */
+            background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Vignette/overlay for better text contrast */
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%);
+        }
+
+        /* 3. Header Navigation */
+        header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li a {
+            margin: 0 1.5rem;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.9);
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: #ffffff;
+        }
+
+        .search-icon i {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .search-icon i:hover {
+            color: #ffffff;
+        }
+
+        /* 4. Central Hero Content */
+        .hero-content {
+            position: relative; /* To appear above the overlay */
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .subtitle {
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+
+        .main-title {
+            font-size: clamp(5rem, 15vw, 12rem); /* Responsive font size */
+            font-weight: 800;
+            text-transform: uppercase;
+            line-height: 0.9;
+            letter-spacing: -0.05em;
+            margin-top: -1rem; /* Adjust overlap */
+        }
+
+        .cta-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* 5. Vertical Social Links (Right) */
+        .social-links {
+            position: absolute;
+            right: 4rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .social-links a {
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.9);
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #ffffff;
+        }
+
+        /* 6. Bottom UI Elements */
+        .sound-icon {
+            position: absolute;
+            bottom: 2rem;
+            left: 4rem;
+            z-index: 10;
+        }
+
+        .slider-dots {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            gap: 15px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border: 1px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .dot.active {
+            background-color: #fff;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            right: 4rem;
+            z-index: 10;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* 7. Responsive Design */
+        @media (max-width: 1024px) {
+            header, .social-links, .sound-icon, .scroll-indicator {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+            .social-links { right: 2rem; }
+            .sound-icon { left: 2rem; }
+            .scroll-indicator { right: 2rem; }
+
+            nav ul li a {
+                margin: 0 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Hide some elements for a cleaner mobile view */
+            nav { display: none; }
+            .social-links { display: none; }
+            .search-icon { display: none; } /* Also hide search for more space */
+            
+            header { justify-content: center; } /* Center the logo */
+
+            .subtitle { font-size: 1.8rem; }
+            .main-title { margin-top: -0.5rem; }
+            .cta-link { font-size: 0.7rem; }
+            
+            .sound-icon { left: 1.5rem; bottom: 1.5rem; }
+            .scroll-indicator { right: 1.5rem; bottom: 1.5rem; }
+            .slider-dots { bottom: 2rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <section class="hero-section">
+        
+        <header>
+            <div class="logo">OpenCurrent</div>
+            <nav>
+                <ul>
+                    <li><a href="#">Work</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Passion</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="search-icon">
+                <i class="fas fa-search"></i>
+            </div>
+        </header>
+
+        <main class="hero-content">
+            <p class="subtitle">Your trusted stream of </p>
+            <h1 class="main-title">Information</h1>
+            <a href="/" class="cta-link">Enter OpenCurrent ></a>
+        </main>
+
+        <aside class="social-links">
+            <a href="#">Facebook</a>
+            <a href="#">Twitter</a>
+            <a href="#">Instagram</a>
+            <a href="#">Youtube</a>
+        </aside>
+
+        <div class="sound-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 13.75V10.25C2 9.83579 2.33579 9.5 2.75 9.5H3.25C3.66421 9.5 4 9.83579 4 10.25V13.75C4 14.1642 3.66421 14.5 3.25 14.5H2.75C2.33579 14.5 2 14.1642 2 13.75Z" fill="white"/>
+                <path d="M6 15.75V8.25C6 7.83579 6.33579 7.5 6.75 7.5H7.25C7.66421 7.5 8 7.83579 8 8.25V15.75C8 16.1642 7.66421 16.5 7.25 16.5H6.75C6.33579 16.5 6 16.1642 6 15.75Z" fill="white"/>
+                <path d="M10 17.75V6.25C10 5.83579 10.3358 5.5 10.75 5.5H11.25C11.6642 5.5 12 5.83579 12 6.25V17.75C12 18.1642 11.6642 18.5 11.25 18.5H10.75C10.3358 18.5 10 18.1642 10 17.75Z" fill="white"/>
+                <path d="M14 15.75V8.25C14 7.83579 14.3358 7.5 14.75 7.5H15.25C15.6642 7.5 16 7.83579 16 8.25V15.75C16 16.1642 15.6642 16.5 15.25 16.5H14.75C14.3358 16.5 14 16.1642 14 15.75Z" fill="white"/>
+                <path d="M18 13.75V10.25C18 9.83579 18.3358 9.5 18.75 9.5H19.25C19.6642 9.5 20 9.83579 20 10.25V13.75C20 14.1642 19.6642 14.5 19.25 14.5H18.75C18.3358 14.5 18 14.1642 18 13.75Z" fill="white"/>
+            </svg>
+        </div>
+        
+        <div class="slider-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+
+        <div class="scroll-indicator">
+            <span>SCROLL</span>
+            <i class="fas fa-long-arrow-alt-down"></i>
+        </div>
+
+    </section>
+    
+</body>
+</html>

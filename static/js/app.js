@@ -4,6 +4,11 @@ console.log('Loading app.js...');
 const dom = {};
 let currentChatSessionId = null;
 let currentSearchType = 'search'; // Default search type
+let settings = {
+  theme: 'dark',
+  resultsPerPage: 10,
+  autoSaveResults: true
+};
 
 document.addEventListener('DOMContentLoaded', function() {
   cacheDOM();
@@ -12,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeForms();
   initializeModals();
   initializeFilters();
+  initializeSettings();
   // Don't auto-load history, let navigation clicks do it
   console.log('App initialization complete');
 });
@@ -53,6 +59,11 @@ function cacheDOM() {
   dom.searchHistoryList = document.getElementById('searchHistoryList');
   dom.chatHistoryList = document.getElementById('chatHistoryList');
   dom.knowledgeBaseList = document.getElementById('knowledgeBaseList');
+  
+  // Settings
+  dom.themeSelect = document.getElementById('themeSelect');
+  dom.resultsPerPage = document.getElementById('resultsPerPage');
+  dom.autoSaveResults = document.getElementById('autoSaveResults');
 }
 
 function initializeForms() {
@@ -850,4 +861,42 @@ function appendMessage(text, className) {
   dom.chatWindow.appendChild(messageDiv);
   dom.chatWindow.scrollTop = dom.chatWindow.scrollHeight;
   return messageDiv;
+}
+
+function initializeSettings() {
+  if (dom.themeSelect) {
+    dom.themeSelect.addEventListener('change', (e) => {
+      settings.theme = e.target.value;
+      localStorage.setItem('settings', JSON.stringify(settings));
+      applyTheme();
+    });
+  }
+  if (dom.resultsPerPage) {
+    dom.resultsPerPage.addEventListener('change', (e) => {
+      settings.resultsPerPage = parseInt(e.target.value);
+      localStorage.setItem('settings', JSON.stringify(settings));
+    });
+  }
+  if (dom.autoSaveResults) {
+    dom.autoSaveResults.addEventListener('change', (e) => {
+      settings.autoSaveResults = e.target.checked;
+      localStorage.setItem('settings', JSON.stringify(settings));
+    });
+  }
+  loadSettings();
+  applyTheme();
+}
+
+function loadSettings() {
+  const storedSettings = localStorage.getItem('settings');
+  if (storedSettings) {
+    settings = JSON.parse(storedSettings);
+    if (dom.themeSelect) dom.themeSelect.value = settings.theme;
+    if (dom.resultsPerPage) dom.resultsPerPage.value = settings.resultsPerPage;
+    if (dom.autoSaveResults) dom.autoSaveResults.checked = settings.autoSaveResults;
+  }
+}
+
+function applyTheme() {
+  document.body.setAttribute('data-theme', settings.theme);
 }

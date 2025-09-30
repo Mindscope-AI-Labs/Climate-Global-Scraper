@@ -1,6 +1,26 @@
 {
   "searches": [
     {
+      "query": "entumoto",
+      "timestamp": "2025-09-30T12:53:05.321618"
+    },
+    {
+      "query": "Paul Ndirangu AI",
+      "timestamp": "2025-09-30T12:50:09.115967"
+    },
+    {
+      "query": "Paul Ndirangu",
+      "timestamp": "2025-09-30T12:50:02.125613"
+    },
+    {
+      "query": "Sewu-Steve tawia",
+      "timestamp": "2025-09-30T11:44:30.674118"
+    },
+    {
+      "query": "Sewu Steve",
+      "timestamp": "2025-09-30T11:43:20.127400"
+    },
+    {
       "query": "climate innitiatives in africa",
       "timestamp": "2025-09-22T12:49:39.814818"
     },
@@ -54,6 +74,16 @@
     }
   ],
   "chats": [
+    {
+      "url": "https://www.youtube.com/watch?v=0H-BMS-DgiM",
+      "session_id": "05fd16fec09a5df769eaa77ccd94c8a2460d0bdd8143fc5077581b3f9e024b25",
+      "timestamp": "2025-09-30T11:45:38.307789"
+    },
+    {
+      "url": "https://www.linkedin.com/posts/stevetawia_toac-titans-ghana-series-stephen-antwi-asimeng-activity-7376359466746736640-Av1y",
+      "session_id": "6ad8b392906ea7da8d320b9c8a48a30ffa9006d7589250dc3b9261e3a9b01463",
+      "timestamp": "2025-09-30T11:31:05.460007"
+    },
     {
       "url": "https://disruptafrica.com/2025/09/19/6-african-startups-share-400k-funding-from-finca-ventures-prize-competition/",
       "session_id": "4b5858c37a881d99535672b5ccb27dc1cf28b98250fd3ad1d870f085ca120b67",

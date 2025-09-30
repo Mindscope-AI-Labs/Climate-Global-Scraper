@@ -258,6 +258,10 @@ class SaveKnowledgeBaseRequest(BaseModel):
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/home", response_class=HTMLResponse)
+async def landing_page(request: Request):
+    return templates.TemplateResponse("landing.html", {"request": request})
+
 @app.get("/history", response_class=JSONResponse)
 async def get_history():
     return load_history()

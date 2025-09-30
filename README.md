@@ -1,6 +1,6 @@
 # OpenCurrent - Climate Intelligence Platform
 
-A powerful web application that enables intelligent search, crawling, and analysis of climate-related organizations and initiatives worldwide. Combining advanced web scraping with AI-powered content analysis to deliver comprehensive insights.
+A powerful web application (v3.3.0) that enables intelligent search, crawling, and analysis of climate-related organizations and initiatives worldwide. Combining advanced web scraping with AI-powered content analysis, knowledge base management, and Retrieval-Augmented Generation (RAG) chat to deliver comprehensive insights.
 
 ## 🚀 Features
 
@@ -32,16 +32,16 @@ A powerful web application that enables intelligent search, crawling, and analys
 ## 🛠️ Prerequisites
 
 - Python 3.8+
-- Node.js 14+ (for frontend development, optional)
 - A [Serper.dev](https://serper.dev/) API key (free tier available)
+- A [Groq](https://groq.com/) API key (for AI summarization and RAG chat)
 - Internet connection for web crawling and search functionality
 
 ## 📦 Setup
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/climate-global-scraper.git
-   cd climate-global-scraper
+   git clone https://github.com/Mindscope-AI-Labs/Climate-Global-Scraper.git
+   cd Climate-Global-Scraper
    ```
 
 2. **Create and activate a virtual environment**:
@@ -56,9 +56,15 @@ A powerful web application that enables intelligent search, crawling, and analys
    ```
 
 4. **Create environment configuration**:
-   Create a `.env` file in the project root and add your API key:
+   Create a `.env` file in the project root and add your API keys:
    ```
-   SERPER_API_KEY=your_api_key_here
+   SERPER_API_KEY=your_serper_api_key_here
+   GROQ_API_KEY=your_groq_api_key_here
+   ```
+
+5. **Install Playwright browsers**:
+   ```bash
+   playwright install
    ```
 
 ## 🚀 Running the Application
@@ -101,30 +107,35 @@ A powerful web application that enables intelligent search, crawling, and analys
 
 ```
 .
+├── app.py                  # Legacy FastAPI application (v3.0.0)
+├── chroma_db/              # ChromaDB vector database storage
+├── debug_buttons.js        # Debug utilities
+├── history.json            # Search history data
+├── knowledge_base.json     # Saved knowledge base entries
+├── LICENSE
+├── main.py                 # Main FastAPI application (v3.3.0)
+├── README.md
+├── requirements.txt        # Python dependencies
+├── simple_test.js          # Test utilities
+├── src/
+│   ├── data/               # Additional data storage
+│   └── __pycache__/
+├── start.sh                # Startup script for deployment
 ├── static/                 # Static files (CSS, JS, images)
 │   ├── css/
-│   │   └── styles.css     # Main stylesheet with dark theme
-│   ├── js/
-│   │   └── app.js         # Frontend JavaScript functionality
-│   └── images/
-│       ├── logo.png       # Main application logo
-│       └── title-logo.png # Favicon and title logo
-├── templates/
-│   └── index.html         # Main HTML template
-├── src/
-│   └── data/              # Directory for storing search results
-│       ├── climate_organisations.json
-│       ├── search_results.json
-│       └── test.json
-├── venv/                  # Virtual environment
-├── .env                   # Environment variables
-├── .gitignore
-├── debug_buttons.js       # Debug utilities
-├── LICENSE
-├── main.py                # FastAPI application with crawling & analysis
-├── README.md
-├── requirements.txt       # Python dependencies
-└── simple_test.js         # Test utilities
+│   │   └── styles.css      # Main stylesheet with dark theme
+│   ├── images/
+│   │   ├── logo.png        # Main application logo
+│   │   └── title-logo.png  # Favicon and title logo
+│   └── js/
+│       └── app.js          # Frontend JavaScript functionality
+├── templates/              # HTML templates
+│   ├── index.html          # Main HTML template
+│   └── new.html            # Additional template
+├── uploads/                # Uploaded files directory
+├── venv/                   # Virtual environment
+├── .env                    # Environment variables
+└── .gitignore
 ```
 
 ## ⚙️ Environment Variables
@@ -132,36 +143,51 @@ A powerful web application that enables intelligent search, crawling, and analys
 | Variable       | Description                          | Required | Default |
 |----------------|--------------------------------------|----------|---------|
 | SERPER_API_KEY | Your Serper.dev API key              | Yes      | -       |
+| GROQ_API_KEY   | Your Groq API key for AI features    | Yes      | -       |
+| JINA_API_KEY   | Optional Jina AI API key             | Optional | -       |
 
 ## 🔌 API Endpoints
 
 ### Core Endpoints
 - `GET /` - Serve the main application interface
+- `GET /history` - Retrieve search and chat session history
 - `POST /search` - Perform a search using Serper.dev API
-  - Request body: `{"query": "search terms", "gl": "country_code", "num": 10}`
+  - Request body: `{"query": "search terms", "type": "search|news|places"}`
   - Response: Search results in JSON format
 
-### Advanced Endpoints
-- `POST /crawl` - Crawl a specific URL and extract content
-  - Request body: `{"url": "https://example.com"}`
-  - Response: Crawled content with metadata
+### Knowledge Base Management
+- `GET /knowledge-base` - Retrieve all saved knowledge base entries
+- `POST /knowledge-base/save` - Save an entry to the knowledge base
+- `DELETE /knowledge-base/delete/{entry_id}` - Delete an entry from the knowledge base
 
-- `POST /summarize` - Analyze and summarize webpage content
+### AI-Powered Analysis
+- `POST /summarize` - Analyze and summarize webpage content with Groq AI
   - Request body: `{"url": "https://example.com"}`
   - Response: Comprehensive analysis including:
     ```json
     {
-      "url": "https://example.com",
-      "title": "Page Title",
-      "publication_date": "January 15, 2024",
+      "subject_name": "Organization Name",
       "summary": "Content summary...",
+      "publication_date": "January 15, 2024",
+      "location": "Location information",
       "contacts": {
         "emails": ["email@example.com"],
         "organizations": ["Organization Name"]
       },
-      "location": "Location information"
+      "funds_money_investments": ["Project funding"],
+      "projects_activities": ["Project descriptions"],
+      "locations_mentioned": ["Geographic locations"]
     }
     ```
+
+### Web Scraping & RAG Chat
+- `POST /ingest` - Ingest a URL for vectorization and RAG chat
+  - Request body: `{"url": "https://example.com"}`
+  - Response: `{ "message": "Ingestion started", "session_id": "session_id" }`
+- `GET /ingest-status/{session_id}` - Check ingestion status
+- `POST /chat` - Ask questions about ingested content
+  - Request body: `{"question": "your question", "session_id": "session_id"}`
+  - Response: `{ "answer": "AI-generated answer" }`
 
 ## 🛠️ Development
 
@@ -220,9 +246,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - [Serper.dev](https://serper.dev/) for the powerful search API
+- [Groq](https://groq.com/) for fast AI inference and the LLaMA models
 - [FastAPI](https://fastapi.tiangolo.com/) for the modern web framework
-- [Uvicorn](https://www.uvicorn.org/) for the high-performance ASGI server
-- [Crawl4AI](https://github.com/unclecode/crawl4ai) for advanced web crawling
+- [Crawl4AI](https://github.com/unclecode/crawl4ai) for advanced web crawling and content extraction
+- [LangChain](https://langchain.com/) for building AI applications with LLMs
+- [ChromaDB](https://chroma-db.com/) for vector database and similarity search
 - [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) for HTML parsing
 - [Bootstrap Icons](https://icons.getbootstrap.com/) for the icon library
 
