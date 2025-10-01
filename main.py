@@ -11,7 +11,8 @@ from typing import List, Dict, Any, Optional
 import httpx
 import chromadb
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
+from fastapi import FastAPI, Request, HTTPException, BackgroundTasks, UploadFile, File
+import tempfile
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -29,6 +30,9 @@ from langchain_core.output_parsers import StrOutputParser
 from pydantic import BaseModel as LangChainBaseModel, Field as LangChainField
 from langchain_core.output_parsers import PydanticOutputParser
 from chromadb.utils import embedding_functions
+
+# CSV processing
+import datahelper
 
 # --- Load Environment Variables ---
 load_dotenv()
@@ -253,6 +257,15 @@ class SaveKnowledgeBaseRequest(BaseModel):
     projects_activities: Optional[List[str]] = None
     locations_mentioned: Optional[List[str]] = None
 
+class CSVUploadRequest(BaseModel):
+    filename: str
+class CSVAnalyzeTrendRequest(BaseModel):
+    filename: str
+    variable: str
+class CSVQuestionRequest(BaseModel):
+    filename: str
+    question: str
+
 # --- API Endpoints ---
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
@@ -430,6 +443,115 @@ async def chat_endpoint(request: ChatRequest):
     except Exception as e:
         print(f"Error during chat: {e}")
         raise HTTPException(status_code=500, detail="An error occurred during chat.")
+
+@app.post("/csv/upload")
+async def upload_csv(file: UploadFile = File(...)):
+    if not file.filename.lower().endswith('.csv'):
+        raise HTTPException(status_code=400, detail="Only CSV files are allowed")
+    
+    # Ensure uploads directory exists
+    uploads_dir = BASE_DIR / "uploads"
+    uploads_dir.mkdir(exist_ok=True)
+    
+    # Save file
+    file_path = uploads_dir / file.filename
+    with open(file_path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+    
+    return {"message": "File uploaded successfully", "filename": file.filename}
+
+@app.post("/csv/summarize")
+async def summarize_csv_endpoint(data: CSVUploadRequest):
+    file_path = BASE_DIR / "uploads" / data.filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="CSV file not found")
+
+    try:
+        summary = datahelper.summerize_csv(str(file_path))
+
+        # Transform datahelper output to frontend expected format
+        df = datahelper.get_dataframe(str(file_path))
+
+        # Extract missing values count
+        missing_count = df.isnull().sum().sum()
+        missing_text = summary.get("missing_values", f"There are {missing_count} missing values")
+
+        # Extract duplicates count
+        duplicates_count = df.duplicated().sum()
+        duplicates_text = summary.get("duplicate_values", f"There are {duplicates_count} duplicate values")
+
+        # Build response
+        response = {
+            "shape": [df.shape[0], df.shape[1]],
+            "columns": df.columns.tolist(),
+            "sample_rows": df.head().to_dict('records'),
+            "missing_values": missing_text,
+            "duplicates": duplicates_text,
+            "column_descriptions": summary.get("column_descriptions", ""),
+            "essential_metrics": summary.get("essential_metrics", {})
+        }
+
+        return response
+    except Exception as e:
+        print(f"Error summarizing CSV: {e}")
+        raise HTTPException(status_code=500, detail=f"Error summarizing CSV: {str(e)}")
+
+@app.post("/csv/analyze-trend")
+async def analyze_trend_endpoint(data: CSVAnalyzeTrendRequest):
+    file_path = BASE_DIR / "uploads" / data.filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="CSV file not found")
+    
+    try:
+        result = datahelper.analyze_trend(str(file_path), data.variable)
+        return {"analysis": result}
+    except Exception as e:
+        print(f"Error analyzing trend: {e}")
+        raise HTTPException(status_code=500, detail=f"Error analyzing trend: {str(e)}")
+
+@app.post("/csv/ask-question")
+async def ask_question_endpoint(data: CSVQuestionRequest):
+    file_path = BASE_DIR / "uploads" / data.filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="CSV file not found")
+    
+    try:
+        result = datahelper.ask_question(str(file_path), data.question)
+        return {"answer": result}
+    except Exception as e:
+        print(f"Error answering question: {e}")
+        raise HTTPException(status_code=500, detail=f"Error answering question: {str(e)}")
+
+@app.get("/csv/list")
+async def list_csv_files():
+    uploads_dir = BASE_DIR / "uploads"
+    if not uploads_dir.exists():
+        return {"files": []}
+
+    files = [f.name for f in uploads_dir.glob("*.csv") if f.is_file()]
+    return {"files": files}
+
+# CSV Chat functionality
+class CSVChatRequest(BaseModel):
+    filename: str
+    message: str
+
+csv_chat_sessions = {}  # filename -> list of messages (but simplified for now)
+
+@app.post("/csv/chat")
+async def csv_chat_endpoint(data: CSVChatRequest):
+    file_path = BASE_DIR / "uploads" / data.filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="CSV file not found")
+
+    try:
+        # For now, just use the ask_question function. Could be enhanced to maintain chat history
+        result = datahelper.ask_question(str(file_path), data.message)
+        return {"response": result}
+    except Exception as e:
+        print(f"Error in CSV chat: {e}")
+        raise HTTPException(status_code=500, detail=f"Error in chat: {str(e)}")
 
 if __name__ == "__main__":
     if not HISTORY_FILE.exists():

@@ -1,0 +1,9 @@
+Category,Item,Unit,Unit Cost,Quantity,Total Cost
+Development Time,AI Engineer,hours,100,320,32000
+Paid APIs,OpenAI GPT-4,per 1M tokens,10,20,200
+Paid APIs,ElevenLabs,per month,99,1,99
+Paid APIs,Synthesia/HeyGen,per month,200,1,200
+Cloud Hosting,AWS/Google Cloud/Azure,per month,500,1,500
+Contingency,,,,,3299.9
+Total,,,,,36298.9
+

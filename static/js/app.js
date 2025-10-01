@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeModals();
   initializeFilters();
   initializeSettings();
+  initializeCsvAnalysis();
   // Don't auto-load history, let navigation clicks do it
   console.log('App initialization complete');
 });
@@ -42,6 +43,25 @@ function cacheDOM() {
   dom.chatForm = document.getElementById('chatForm');
   dom.chatWindow = document.getElementById('chatWindow');
   dom.chatInput = document.getElementById('chatInput');
+
+  // CSV Analysis
+  dom.csvUploadBtn = document.getElementById('csvUploadBtn');
+  dom.csvFileInput = document.getElementById('csvFileInput');
+  dom.csvUploadArea = document.getElementById('csvUploadArea');
+  dom.csvAnalysisTabs = document.getElementById('csvAnalysisTabs');
+  dom.uploadStatus = document.getElementById('uploadStatus');
+  dom.trendVariable = document.getElementById('trendVariable');
+  dom.analyzeTrendBtn = document.getElementById('analyzeTrendBtn');
+  dom.askQuestionBtn = document.getElementById('askQuestionBtn');
+  dom.questionInput = document.getElementById('questionInput');
+  dom.trendsResult = document.getElementById('trendsResult');
+  dom.questionsResult = document.getElementById('questionsResult');
+  dom.csvSummaryContainer = document.getElementById('csvSummaryContainer');
+
+  // CSV Chat
+  dom.csvChatWindow = document.getElementById('csvChatWindow');
+  dom.csvChatForm = document.getElementById('csvChatForm');
+  dom.csvChatInput = document.getElementById('csvChatInput');
 
   // Navigation & Layout
   dom.sidebar = document.getElementById('sidebar');
@@ -144,6 +164,333 @@ async function loadAndDisplayHistory() {
 function showHistoryLoading() {
     dom.searchHistoryList.innerHTML = '<div class="history-loading">Loading search history...</div>';
     dom.chatHistoryList.innerHTML = '<div class="history-loading">Loading chat history...</div>';
+}
+
+// CSV Analysis functionality
+let currentCsvFile = null;
+
+function initializeCsvAnalysis() {
+    console.log('Initializing CSV Analysis...');
+
+    if (dom.csvUploadBtn) {
+      dom.csvUploadBtn.addEventListener('click', () => {
+        console.log('Upload button clicked');
+        dom.csvFileInput.click();
+      });
+    }
+
+    if (dom.csvFileInput) {
+      dom.csvFileInput.addEventListener('change', (e) => {
+        console.log('File selected:', e.target.files[0]);
+        handleFileSelect(e);
+      });
+    }
+
+    // Initialize CSV chat
+    if (dom.csvChatForm) {
+      dom.csvChatForm.addEventListener('submit', handleCsvChatMessage);
+    }
+
+    // Initialize tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const tabName = e.target.dataset.tab;
+        switchTab(tabName);
+      });
+    });
+
+    // Initialize trend analysis button
+    if (dom.analyzeTrendBtn) {
+      dom.analyzeTrendBtn.addEventListener('click', analyzeTrend);
+    }
+
+    // Initialize question button
+    if (dom.askQuestionBtn) {
+      dom.askQuestionBtn.addEventListener('click', askQuestion);
+    }
+  }
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file && file.name.endsWith('.csv')) {
+    currentCsvFile = file;
+    uploadCsvFile(file);
+  } else {
+    showUploadStatus('Please select a valid CSV file.', 'error');
+  }
+}
+
+async function uploadCsvFile(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  showUploadStatus('Uploading...', 'info');
+  
+  try {
+    const response = await fetch('/csv/upload', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok) {
+      showUploadStatus('File uploaded successfully!', 'success');
+      showCsvAnalysisTabs();
+      await loadCsvSummary();
+      await loadCsvVariables();
+    } else {
+      showUploadStatus(result.error || 'Upload failed', 'error');
+    }
+  } catch (error) {
+    console.error('Upload failed:', error);
+    showUploadStatus('Upload failed. Please try again.', 'error');
+  }
+}
+
+function showUploadStatus(message, type) {
+  if (dom.uploadStatus) {
+    dom.uploadStatus.textContent = message;
+    dom.uploadStatus.className = `upload-status ${type}`;
+  }
+}
+
+function showCsvAnalysisTabs() {
+  if (dom.csvUploadArea) dom.csvUploadArea.style.display = 'none';
+  if (dom.csvAnalysisTabs) dom.csvAnalysisTabs.style.display = 'block';
+}
+
+async function loadCsvSummary() {
+  try {
+    const response = await fetch('/csv/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: currentCsvFile.name })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Summary data received:', data);
+      displayCsvSummary(data);
+    } else {
+      const errorData = await response.json();
+      console.error('Summary API error:', errorData);
+    }
+  } catch (error) {
+    console.error('Summary failed:', error);
+  }
+}
+
+function markdownTableToHtml(markdownTable) {
+  if (!markdownTable || typeof markdownTable !== 'string') return markdownTable;
+
+  const lines = markdownTable.trim().split('\n');
+  if (lines.length < 2) return markdownTable;
+
+  let html = '<table class="csv-table"><thead><tr>';
+
+  // Parse header row
+  const headers = lines[0].split('|').slice(1, -1).map(h => h.trim());
+  headers.forEach(header => {
+    html += `<th>${header}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  // Skip separator row and parse data rows
+  for (let i = 2; i < lines.length; i++) {
+    const cells = lines[i].split('|').slice(1, -1).map(c => c.trim());
+    html += '<tr>';
+    cells.forEach(cell => {
+      html += `<td>${cell}</td>`;
+    });
+    html += '</tr>';
+  }
+
+  html += '</tbody></table>';
+  return html;
+}
+
+function displayCsvSummary(summary) {
+  if (!dom.csvSummaryContainer) return;
+
+  let html = '';
+
+  if (summary.shape) {
+    html += `
+      <div class="csv-summary-item">
+        <div class="csv-summary-title">📊 Dataset Shape</div>
+        <div class="csv-summary-content">${summary.shape[0]} rows × ${summary.shape[1]} columns</div>
+      </div>
+    `;
+  }
+
+  if (summary.columns && summary.columns.length > 0) {
+    html += `
+      <div class="csv-summary-item">
+        <div class="csv-summary-title">📝 Columns</div>
+        <div class="csv-summary-content">${summary.columns.join(',')}</div>
+      </div>
+    `;
+  }
+
+  if (summary.column_descriptions) {
+    html += `
+      <div class="csv-summary-item">
+        <div class="csv-summary-title">📋 Column Descriptions</div>
+        <div class="csv-summary-content">${markdownTableToHtml(summary.column_descriptions)}</div>
+      </div>
+    `;
+  }
+
+  if (summary.sample_rows && summary.sample_rows.length > 0) {
+    html += `
+      <div class="csv-summary-item">
+        <div class="csv-summary-title">🔍 Sample Data (first 5 rows)</div>
+        <div class="csv-summary-content csv-sample-data">${markdownTableToHtml(
+          objectArrayToMarkdownTable(summary.sample_rows)
+        )}</div>
+      </div>
+    `;
+  }
+
+  if (summary.missing_values) {
+    html += `
+      <div class="csv-summary-item">
+        <div class="csv-summary-title">⚠️ Missing Values</div>
+        <div class="csv-summary-content">${summary.missing_values}</div>
+      </div>
+    `;
+  }
+
+  if (summary.duplicate_values !== undefined) {
+    html += `
+      <div class="csv-summary-item">
+        <div class="csv-summary-title">🔄 Duplicate Values</div>
+        <div class="csv-summary-content">${summary.duplicate_values}</div>
+      </div>
+    `;
+  }
+
+  dom.csvSummaryContainer.innerHTML = html;
+}
+
+function objectArrayToMarkdownTable(dataArray) {
+  if (!Array.isArray(dataArray) || dataArray.length === 0) return '';
+
+  const headers = Object.keys(dataArray[0]);
+  let markdown = '| ' + headers.join(' | ') + ' |\n';
+  markdown += '|' + headers.map(() => '---').join('|') + '|\n';
+
+  dataArray.forEach(row => {
+    const values = headers.map(header => String(row[header] || ''));
+    markdown += '| ' + values.join(' | ') + ' |\n';
+  });
+
+  return markdown;
+}
+
+async function loadCsvVariables() {
+  try {
+    const response = await fetch('/csv/list', {
+      method: 'GET'
+    });
+    
+    if (response.ok) {
+      const files = await response.json();
+      // For now, just use the current file name
+      if (currentCsvFile && dom.trendVariable) {
+        // This would need to be enhanced to get actual column names from the backend
+        dom.trendVariable.innerHTML = `<option value="">Select a variable to analyze</option>`;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load variables:', error);
+  }
+}
+
+function switchTab(tabName) {
+  // Update tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+  
+  // Update tab panes
+  document.querySelectorAll('.tab-pane').forEach(pane => {
+    pane.classList.remove('active');
+  });
+  document.getElementById(`${tabName}-tab`).classList.add('active');
+}
+
+async function analyzeTrend() {
+  const variable = dom.trendVariable.value;
+  if (!variable) {
+    alert('Please select a variable to analyze');
+    return;
+  }
+  
+  if (!currentCsvFile) {
+    alert('Please upload a CSV file first');
+    return;
+  }
+  
+  try {
+    const response = await fetch('/csv/analyze-trend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        filename: currentCsvFile.name,
+        variable: variable 
+      })
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      dom.trendsResult.innerHTML = `<div class="csv-summary-content">${result.analysis}</div>`;
+    } else {
+      const error = await response.json();
+      dom.trendsResult.innerHTML = `<div class="csv-summary-content" style="color: #ef4444;">Error: ${error.error}</div>`;
+    }
+  } catch (error) {
+    console.error('Trend analysis failed:', error);
+    dom.trendsResult.innerHTML = `<div class="csv-summary-content" style="color: #ef4444;">Analysis failed. Please try again.</div>`;
+  }
+}
+
+async function askQuestion() {
+  const question = dom.questionInput.value.trim();
+  if (!question) {
+    alert('Please enter a question');
+    return;
+  }
+  
+  if (!currentCsvFile) {
+    alert('Please upload a CSV file first');
+    return;
+  }
+  
+  try {
+    const response = await fetch('/csv/ask-question', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        filename: currentCsvFile.name,
+        question: question 
+      })
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      dom.questionsResult.innerHTML = `<div class="csv-summary-content"><strong>Q: ${question}</strong><br><br>A: ${result.answer}</div>`;
+      dom.questionInput.value = '';
+    } else {
+      const error = await response.json();
+      dom.questionsResult.innerHTML = `<div class="csv-summary-content" style="color: #ef4444;">Error: ${error.error}</div>`;
+    }
+  } catch (error) {
+    console.error('Question answering failed:', error);
+    dom.questionsResult.innerHTML = `<div class="csv-summary-content" style="color: #ef4444;">Failed to get answer. Please try again.</div>`;
+  }
 }
 
 function showHistoryError() {
@@ -899,4 +1246,53 @@ function loadSettings() {
 
 function applyTheme() {
   document.body.setAttribute('data-theme', settings.theme);
+}
+
+async function handleCsvChatMessage(e) {
+  e.preventDefault();
+  const message = dom.csvChatInput.value.trim();
+  if (!message) return;
+
+  if (!currentCsvFile) {
+    alert('Please upload a CSV file first');
+    return;
+  }
+
+  appendMessageToCsvChat(message, 'user-message');
+  dom.csvChatInput.value = '';
+  const thinkingIndicator = appendMessageToCsvChat('Thinking...', 'ai-message');
+
+  try {
+    const response = await fetch('/csv/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: currentCsvFile.name,
+        message: message
+      })
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      thinkingIndicator.textContent = result.response;
+    } else {
+      thinkingIndicator.textContent = `Error: ${result.error || 'Failed to get response'}`;
+      thinkingIndicator.classList.add('error-message');
+    }
+  } catch (error) {
+    console.error('CSV chat failed:', error);
+    thinkingIndicator.textContent = 'Failed to get response. Please try again.';
+    thinkingIndicator.classList.add('error-message');
+  }
+}
+
+function appendMessageToCsvChat(text, className) {
+  if (!dom.csvChatWindow) return;
+
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `chat-message ${className}`;
+  messageDiv.textContent = text;
+  dom.csvChatWindow.appendChild(messageDiv);
+  dom.csvChatWindow.scrollTop = dom.csvChatWindow.scrollHeight;
+  return messageDiv;
 }

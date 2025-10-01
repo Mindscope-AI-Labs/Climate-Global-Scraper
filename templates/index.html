@@ -22,6 +22,15 @@
             <li><a href="#" class="nav-item active" data-section="search"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></span><span class="nav-text">Search</span></a></li>
             <li><a href="#" class="nav-item" data-section="chat"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" /></svg></span><span class="nav-text">Chat with Site</span></a></li>
             <li><a href="#" class="nav-item" data-section="knowledge-base"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6-2.292m0 4.584l-6-3.375m6 3.375l6-3.375" /></svg></span><span class="nav-text">Knowledge Base</span></a></li>
+            <li><a href="#" class="nav-item" data-section="csv-analysis">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </span>
+                <span class="nav-text">CSV Analysis</span>
+              </a>
+            </li>
         </ul>
       </div>
       <div class="nav-section">
@@ -176,6 +185,64 @@
               </div>
           </div>
         </section>
+        <section class="content-section" id="csv-analysis-section">
+            <div class="section-header">
+              <h2>CSV Analysis</h2>
+              <p>Upload and analyze your CSV files with AI-powered insights.</p>
+            </div>
+            <div class="csv-analysis-container">
+              <!-- Upload area -->
+              <div class="csv-upload-area" id="csvUploadArea">
+                <h3>Upload CSV File</h3>
+                <button class="btn btn-primary" id="csvUploadBtn">Choose File</button>
+                <input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
+                <div class="upload-status" id="uploadStatus"></div>
+              </div>
+              
+              <!-- Analysis tabs (shown after upload) -->
+              <div class="csv-analysis-tabs" id="csvAnalysisTabs" style="display: none;">
+                <div class="tab-nav">
+                  <button class="tab-btn active" data-tab="summary">Summary</button>
+                  <button class="tab-btn" data-tab="trends">Trends</button>
+                  <button class="tab-btn" data-tab="questions">Q&A</button>
+                  <button class="tab-btn" data-tab="chat">Chat</button>
+                </div>
+                
+                <div class="tab-content">
+                  <div class="tab-pane active" id="summary-tab">
+                    <div id="csvSummaryContainer"></div>
+                  </div>
+                  <div class="tab-pane" id="trends-tab">
+                    <div class="trends-form">
+                      <select id="trendVariable" class="input">
+                        <option value="">Select a variable to analyze</option>
+                      </select>
+                      <button class="btn btn-primary" id="analyzeTrendBtn">Analyze Trend</button>
+                    </div>
+                    <div id="trendsResult"></div>
+                  </div>
+                  <div class="tab-pane" id="questions-tab">
+                    <div class="question-form">
+                      <input type="text" id="questionInput" class="input" placeholder="Ask a question about your data..." />
+                      <button class="btn btn-primary" id="askQuestionBtn">Ask Question</button>
+                    </div>
+                    <div id="questionsResult"></div>
+                  </div>
+                  <div class="tab-pane" id="chat-tab">
+                    <div class="csv-chat-container">
+                      <div id="csvChatWindow" class="csv-chat-window">
+                        <div class="ai-message">Hello! Upload a CSV file to start chatting with your data.</div>
+                      </div>
+                      <form id="csvChatForm" class="csv-chat-form">
+                        <input id="csvChatInput" class="input" placeholder="Ask me anything about your CSV data..." required autocomplete="off" />
+                        <button type="submit" class="btn btn-primary">Send</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         <section class="content-section" id="settings-section">
             <div class="section-header"><h2>Settings</h2><p>Customize your application experience and preferences.</p></div>
             <div class="settings-container">
