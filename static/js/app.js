@@ -168,6 +168,7 @@ function showHistoryLoading() {
 
 // CSV Analysis functionality
 let currentCsvFile = null;
+let uploadProgressInterval = null;
 
 function initializeCsvAnalysis() {
     console.log('Initializing CSV Analysis...');
@@ -208,6 +209,9 @@ function initializeCsvAnalysis() {
     if (dom.askQuestionBtn) {
       dom.askQuestionBtn.addEventListener('click', askQuestion);
     }
+
+    // Initialize save button
+    initializeSaveButton();
   }
 
 function handleFileSelect(e) {

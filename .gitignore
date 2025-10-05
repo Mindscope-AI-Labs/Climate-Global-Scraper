@@ -4,3 +4,4 @@
 ./src/data
 ./src/logs
 ./__pycache__
+./modules
